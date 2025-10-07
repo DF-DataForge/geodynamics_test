@@ -1,0 +1,24 @@
+<odoo>
+    <data>
+
+        <!-- Inherit the Contact form view (res.partner) -->
+        <record id="view_partner_form_inherit_geodynamics" model="ir.ui.view">
+            <field name="name">res.partner.form.inherit.geodynamics</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <!-- Add a new page under the notebook -->
+                <xpath expr="//notebook" position="inside">
+                    <page string="Geodynamics">
+                        <!-- You can add fields or custom widgets inside this page -->
+                        <p>Poi ID in Geodynamics: <field name="df_geodynamics_poi_id" /></p>
+                        <button icon="oi-arrow-right" class="btn-link" name="sync_poi_geodynamics" string="Sync met Geodynamics" type="object" style="width:300px" />
+                        <!-- Add any other fields you want for the Geodynamics page -->
+                        <p invisible="df_geodynamics_error_message == ''">Foutboodschap Geodynamics: <field name="df_geodynamics_error_message" /></p>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

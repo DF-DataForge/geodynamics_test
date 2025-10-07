@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_geodynamics_geodynamics,geodynamics.geodynamics,model_geodynamics_geodynamics,base.group_user,1,1,1,1
+access_df_geodynamics_planning,df_geodynamics_planning_access,model_df_geodynamics_planning,base.group_user,1,1,1,1
+access_geodynamics_poitype,geodynamics.poitype,model_df_geodynamics_poitype,base.group_user,1,1,1,1

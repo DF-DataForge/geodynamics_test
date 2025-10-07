@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Inherit the existing task form view -->
+        <record id="view_task_form_inherit_geodynamics" model="ir.ui.view">
+            <field name="name">project.task.form.inherit.geodynamics</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.view_task_form2"/>
+            <field name="arch" type="xml">
+                 <xpath expr="//field[@name='personal_stage_type_id']" position="after">
+                    <button name = "sendPlanningToDGdWn" type="object" class="btn-primary" string="Plan in Geodynamics"></button>
+                </xpath>
+                <!-- Locate the notebook element to add a new page -->
+                <xpath expr="//notebook" position="inside">
+                    <!-- Define the new page -->
+                    <page string="Geodynamics" invisible="[(df_workmode != 'usermode')]">
+                        <!-- Add your custom fields or content here -->
+                        <group>
+                            <field name="df_assignees_with_geodynamics_ids" widget="many2many_tags"/>
+                            <field name="df_workmode" invisible="1"/>
+                            <button name="sendPlanningToDGdWn" string="Zet planning Geodynamics" type="object" class="btn-primary"/>
+                            <button name="laadPostcalc" string="Laad post calculatie" type="object" class="btn-primary"/>
+                        </group>
+                    </page>
+                    <page string="Geodynamics">
+                        <div class="col-12">
+                        <!-- Add your custom fields or content here -->
+                            <field name="df_employees_without_geodynamics_ids_invisible" invisible="1"/>
+                            <div invisible="df_employees_without_geodynamics_ids_invisible">
+                                <p>Let op, volgende werknemers hebben geen Geodynamics Id en zullen niet kunnen ingepland worden in Geodynamics:
+                                <field name="df_employees_without_geodynamics_ids" class="red-text" widget="many2many_tags"/>
+                                </p>
+                            </div>
+                            <field name="df_gd_planning_overlapped_ids_invisible" invisible="1"/>
+                            <div invisible="df_gd_planning_overlapped_ids_invisible">
+                                <p>Let op, volgende planningen van schilders overlappen met de planning van de huidige taak:
+                                <field name="df_gd_planning_overlapped_ids" class="red-text" widget="many2many_tags"/>
+                                </p>
+                            </div>
+                            <div class="col-12">
+                                <p>Planningen in Geodynamics:</p>
+                                <p>
+                                    <field name="df_gd_planning_ids2" style="font-size:16px" class="col-6" mode="tree">
+                                        <tree editable="bottom">
+                                            <field name="employee_id"/>
+                                            <field name="start_datetime"/>
+                                            <field name="end_datetime"/>
+                                        </tree>
+                                    </field>
+                                </p>
+                            </div>
+                            <div class="row">
+                                <div>
+                                    <button icon="oi-arrow-right" class="btn-link" name="sendPlanningToDGdWn" string="Plan in" type="object" style="width:300px" />
+                                </div>
+                                <div>
+                                    <button icon="oi-arrow-right" class="btn-link" name="laadPostcalc" string="Haal nacalculatie op" style="width:300px" type="object" />
+                                </div>
+                            </div>
+                        </div>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+          <template id="geodynamics_custom_assets" name="geodynamics assets">
+            <xpath expr="." position="inside">
+                <style>
+                    /* Custom red class for text */
+                    .red-text {
+                        color: red !important; /* Apply red text color */
+                    }
+
+                    /* Custom red class for background */
+                    .red-background {
+                        background-color: red;
+                        color: white; /* Optional: to make the text readable on red */
+                    }
+
+                    /* Style many2many_tags specifically */
+                    .red-text .o_tag {
+                        background-color: red; /* Red background for tags */
+                        color: white; /* White text inside tags for contrast */
+                    }
+                </style>
+            </xpath>
+        </template>
+
+        <record id="view_task_form_inherit_geodynamics_timesheets" model="ir.ui.view">
+            <field name="name">project.task.form.timesheet.inherit.geodynamics</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.view_task_form2"/>
+            <field name="arch" type="xml">
+                <!-- Locate the notebook element to add a new page -->
+                <xpath expr="//page[@name='page_timesheets']//field[@name='unit_amount']" position="before">
+                    <field name="df_startTime" optional="hide"></field>
+                    <field name="df_endTime" optional="hide"></field>
+                    <field name="df_gd_type" optional="hide"></field>
+                    <field name="df_gd_eventtype" optional="hide"></field>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_task_list_view_field_service" model="ir.ui.view">
+            <field name="name">project.task.list.view.field.service.geodynamics</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="industry_fsm.project_task_view_list_fsm"/>
+            <field name="arch" type="xml">
+                <!-- Locate the notebook element to add a new page -->
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="df_gd_planning_ids" optional="show" widget="many2many_tags"/>
+                    <field name="df_gd_planning_overlapped_ids" optional="show" widget="many2many_tags"/>
+                </xpath>
+                <xpath expr="//tree" position="inside">
+                    <header>
+                        <button name="sendPlanningToDGdWn" type="object" string="Planning sturen naar Geodynamics"/>
+                        <button name="laadPostcalc" type="object" string="Haal nacalculatie op van Geodynamics"/>
+                    </header>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="field_service_list_view_geodynamics" model="ir.ui.view">
+            <field name="name">field.service.list.view.geodynamics</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.project_task_view_tree_main_base"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree" position="inside">
+                    <header>
+                        <button name="sendPlanningToDGdWn" type="object" string="Planning sturen naar Geodynamics"/>
+                        <button name="laadPostcalc" type="object" string="Haal calculatie op van Geodynamics"/>
+                    </header>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,5 @@
+<odoo>
+  <data>
+    <menuitem name="Geodynamics" id="geodynamics.menu_root" web_icon="geodynamics,static/description/icon.png"/>
+  </data>
+</odoo>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.geodynamics</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="90"/>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="inside">
+                    <app data-string="Geodynamics" id="geodynamics" string="Geodynamics" name="geodynamics">
+                        <block title="Login settings" id="gd_login_setting">
+                            <setting string="Login">
+                                <div class="text-muted content-group mt16">
+                                    <span>Bedrijf: </span>
+                                    <field name="geodynamics_company" style="width: 320px"/>
+                                </div>
+                                <div class="text-muted content-group mt16">
+                                    <span>Login: </span>
+                                    <field name="geodynamics_login" style="width: 320px"/>
+                                </div>
+                                <div class="text-muted content-group mt16">
+                                    <span>Wachtwoord: </span>
+                                    <field name="geodynamics_password" style="width: 320px" password="True"/>
+                                </div>
+                                <div class="text-muted content-group mt16">
+                                    <button string="Test verbinding" name="gd_test_verbinding" type="object"/>
+                                </div>
+                            </setting>
+                        </block>
+                        <block title="Import" id="gd_import_setting">
+                            <setting string="Import">
+                                <p><button icon="oi-arrow-right" name="gd_fetch_planningen" type="object" string="Planning laden Geodynamics"></button></p>
+                                <p><button icon="oi-arrow-right" name="gd_poitype_to_odoo" type="object" string="POI types laden"></button></p>
+                            </setting>
+                        </block>
+                         <block title="Tools" id="gd_tools_setting">
+                            <setting string="Tools">
+                                <p><button icon="oi-arrow-right" name="gd_erase_planningen" type="object" confirm="Alle planningen wissen?" string="Planningen gebruikers wissen"></button></p>
+                            </setting>
+                        </block>
+                        <block title="Algemene instellingen" id="gd_general_settings">
+                            <setting string="Algemene instellingen">
+                                <group>
+                                    <field name="geodynamics_postcalcsource"/>
+                                    <field name="geodynamics_warning_planning_overlap"/>
+                                    <field name="df_plan_directly"></field>
+                                </group>
+                            </setting>
+                        </block>
+                    </app>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="geodynamics_config_settings_action" model="ir.actions.act_window">
+            <field name="name">Settings</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+            <field name="context">{'module' : 'geodynamics', 'bin_size': False}</field>
+        </record>
+
+        <menuitem id="geodynamics_config_settings_menu" name="Settings"
+            parent="geodynamics.menu_root" sequence="10"
+                  action="geodynamics_config_settings_action"
+            groups="base.group_system"/>
+    </data>
+</odoo>

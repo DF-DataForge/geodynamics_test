@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+        <record id="view_project_form_geodynamics_tab" model="ir.ui.view">
+        <field name="name">project.form.geodynamics.tab</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"></field>
+        <field name="arch" type="xml">
+        <notebook position="inside">
+            <page string="Geodynamics">
+                <group>
+                    <field name="df_gd_employee_ids" widget="many2many_tags"/>
+                    <button name="sendPlanningToDGd" string="Zet planning Geodynamics" type="object" class="btn-primary"/>
+                    <button name="laadPostcalc" string="Laad post calculatie" type="object" class="btn-primary"/>
+                </group>
+            </page>
+        </notebook>
+    </field>
+</record>
+    </data>
+</odoo>
