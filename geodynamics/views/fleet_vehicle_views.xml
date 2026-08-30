@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+     License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details. -->
 <odoo>
     <record id="view_fleet_vehicle_tree_geodynamics" model="ir.ui.view">
         <field name="name">fleet.vehicle.list.geodynamics</field>

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+     License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details. -->
 <odoo>
     <!-- Geodynamics Synch Wizard Form View -->
     <record id="view_geodynamics_synch_wizard_form" model="ir.ui.view">
