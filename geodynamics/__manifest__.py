@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+# License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details.
 {
     'name': "Geodynamics",
 
@@ -16,7 +18,7 @@ Last build date: 2026-07-01 19:00:00
     'website': "https://www.data-forge.be",
 
     'category': 'Services/Field Service',
-    'version': '19.0.0.0.2',
+    'version': '19.0.0.0.3',
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'hr', 'project', 'industry_fsm', 'account', 'hr_timesheet', 'web_gantt', 'fleet', 'hr_holidays'],
@@ -55,5 +57,5 @@ Last build date: 2026-07-01 19:00:00
         'data/ir_cron_geodynamics.xml',
     ],
 
-    'license': 'LGPL-3',
+    'license': 'OPL-1',
 }

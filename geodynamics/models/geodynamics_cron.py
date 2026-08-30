@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+# License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details.
 from odoo import models, api, fields
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta

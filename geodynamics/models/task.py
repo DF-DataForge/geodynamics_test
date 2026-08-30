@@ -1,3 +1,5 @@
+# Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+# License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details.
 from odoo import models, fields, api
 
 from . import gdhandler

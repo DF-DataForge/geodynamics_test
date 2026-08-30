@@ -202,7 +202,7 @@ class GeodynamicsHandler:
 - **Version**: 18.0.0.0.1
 - **Author**: Data Forge
 - **Website**: https://www.data-forge.be
-- **License**: Standard Odoo License
+- **License**: OPL-1 (Odoo Proprietary License v1.0)
 - **Compatibility**: Odoo 18.0+
 
 ## Installation
@@ -223,3 +223,18 @@ class GeodynamicsHandler:
 ---
 
 *This module provides seamless integration between Odoo and Geodynamics, enabling businesses to leverage the power of both systems while maintaining data consistency and operational efficiency across planning, project management, and field service operations.*
+
+---
+
+## License
+
+Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+
+This module is licensed under the **Odoo Proprietary License v1.0 (OPL-1)**.
+It may only be used if you have purchased a valid license from Data Forge or
+have received a written agreement from Data Forge.
+
+Publishing, distributing, sublicensing or selling copies of this module —
+modified or unmodified — is forbidden.
+
+See the [LICENSE](LICENSE) and [COPYRIGHT](COPYRIGHT) files for full details.
