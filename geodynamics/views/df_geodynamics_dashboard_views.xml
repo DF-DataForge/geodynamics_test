@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Dashboard action: opens clocking analysis in graph mode -->
+    <record id="action_geodynamics_dashboard" model="ir.actions.act_window">
+        <field name="name">Dashboard</field>
+        <field name="res_model">geodynamics.clocking</field>
+        <field name="view_mode">graph,pivot,list</field>
+        <field name="context">{'search_default_group_by_employee': 1}</field>
+    </record>
+
+    <!-- Dashboard menu temporarily hidden; to be re-implemented later.
+    <menuitem id="menu_geodynamics_dashboard" name="Dashboard"
+              parent="geodynamics.menu_root" sequence="5"
+              action="action_geodynamics_dashboard"/>
+    -->
+
+</odoo>

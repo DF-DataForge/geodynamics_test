@@ -8,54 +8,65 @@
             <field name="inherit_id" ref="project.view_task_form2"/>
             <field name="arch" type="xml">
                  <xpath expr="//field[@name='personal_stage_type_id']" position="after">
-                    <button name = "sendPlanningToDGdWn" type="object" class="btn-primary" string="Plan in Geodynamics"></button>
+                    <field name="df_gd_planning_task_enabled" invisible="1"/>
+                    <button name="sendPlanningToDGdWn" type="object" class="btn-primary" string="Plan in Geodynamics" invisible="not df_gd_planning_task_enabled"/>
                 </xpath>
-                <!-- Locate the notebook element to add a new page -->
                 <xpath expr="//notebook" position="inside">
-                    <!-- Define the new page -->
-                    <page string="Geodynamics" invisible="[(df_workmode != 'usermode')]">
+                    <page string="Geodynamics" invisible="df_workmode != 'usermode' or not df_gd_planning_task_enabled">
                         <!-- Add your custom fields or content here -->
                         <group>
+                            <field name="df_geodynamics_poi_id" readonly="1"/>
                             <field name="df_assignees_with_geodynamics_ids" widget="many2many_tags"/>
                             <field name="df_workmode" invisible="1"/>
                             <button name="sendPlanningToDGdWn" string="Zet planning Geodynamics" type="object" class="btn-primary"/>
                             <button name="laadPostcalc" string="Laad post calculatie" type="object" class="btn-primary"/>
+                            <!-- New button inside first Geodynamics page -->
+                            <button name="fetchClockings" string="Fetch Clockings" type="object" class="btn-secondary"/>
                         </group>
                     </page>
-                    <page string="Geodynamics">
+                    <page string="Geodynamics" invisible="not df_gd_planning_task_enabled">
+
                         <div class="col-12">
-                        <!-- Add your custom fields or content here -->
+                            <group>
+                                <field name="df_employee_ids" widget="many2many_tags"
+                                       string="Employees to plan"
+                                       domain="[('df_geodynamics_id', '!=', False)]"
+                                       options="{'no_create': True}"/>
+                            </group>
+                            <div class="row">
+                                <p>Geodynamics POI Id:
+                                    <field name="df_geodynamics_poi_id" readonly="1"/>
+                                </p>
+                            </div>
                             <field name="df_employees_without_geodynamics_ids_invisible" invisible="1"/>
                             <div invisible="df_employees_without_geodynamics_ids_invisible">
-                                <p>Let op, volgende werknemers hebben geen Geodynamics Id en zullen niet kunnen ingepland worden in Geodynamics:
+                                <p>Warning, the following employees have no Geodynamics Id and cannot be planned in Geodynamics:
                                 <field name="df_employees_without_geodynamics_ids" class="red-text" widget="many2many_tags"/>
                                 </p>
                             </div>
                             <field name="df_gd_planning_overlapped_ids_invisible" invisible="1"/>
                             <div invisible="df_gd_planning_overlapped_ids_invisible">
-                                <p>Let op, volgende planningen van schilders overlappen met de planning van de huidige taak:
+                                <p>Warning, the following plannings overlap with the current task's planning:
                                 <field name="df_gd_planning_overlapped_ids" class="red-text" widget="many2many_tags"/>
                                 </p>
                             </div>
                             <div class="col-12">
-                                <p>Planningen in Geodynamics:</p>
+                                <p>Geodynamics Plannings:</p>
                                 <p>
-                                    <field name="df_gd_planning_ids2" style="font-size:16px" class="col-6" mode="tree">
-                                        <tree editable="bottom">
+                                    <field name="df_gd_planning_ids2" style="font-size:16px" class="col-6" mode="list">
+                                        <list create="false">
                                             <field name="employee_id"/>
                                             <field name="start_datetime"/>
                                             <field name="end_datetime"/>
-                                        </tree>
+                                            <button name="removePlanning" type="object" icon="fa-trash"
+                                                    title="Delete planning"
+                                                    confirm="Delete this planning? It will also be removed from Geodynamics. This cannot be undone."/>
+                                        </list>
                                     </field>
                                 </p>
                             </div>
-                            <div class="row">
-                                <div>
-                                    <button icon="oi-arrow-right" class="btn-link" name="sendPlanningToDGdWn" string="Plan in" type="object" style="width:300px" />
-                                </div>
-                                <div>
-                                    <button icon="oi-arrow-right" class="btn-link" name="laadPostcalc" string="Haal nacalculatie op" style="width:300px" type="object" />
-                                </div>
+                            <div class="mt8">
+                                <button icon="fa-calculator" class="btn-secondary" name="laadPostcalc" string="Fetch Post-Calculation" type="object"/>
                             </div>
                         </div>
                     </page>
@@ -92,10 +103,15 @@
             <field name="arch" type="xml">
                 <!-- Locate the notebook element to add a new page -->
                 <xpath expr="//page[@name='page_timesheets']//field[@name='unit_amount']" position="before">
-                    <field name="df_startTime" optional="hide"></field>
-                    <field name="df_endTime" optional="hide"></field>
-                    <field name="df_gd_type" optional="hide"></field>
-                    <field name="df_gd_eventtype" optional="hide"></field>
+                    <field name="df_start_time" optional="show"/>
+                    <field name="df_end_time" optional="show"/>
+                    <field name="df_gd_type" optional="show"/>
+                    <field name="df_gd_eventtype" optional="show"/>
+                    <field name="df_gd_start_location" optional="show"/>
+                    <field name="df_gd_stop_location" optional="show"/>
+                    <field name="df_gd_mileage" optional="show"/>
+                    <field name="df_gd_start_resource_id" optional="show"/>
+                    <field name="df_gd_stop_resource_id" optional="show"/>
                 </xpath>
             </field>
         </record>
@@ -110,10 +126,12 @@
                     <field name="df_gd_planning_ids" optional="show" widget="many2many_tags"/>
                     <field name="df_gd_planning_overlapped_ids" optional="show" widget="many2many_tags"/>
                 </xpath>
-                <xpath expr="//tree" position="inside">
+                <xpath expr="//list" position="inside">
                     <header>
                         <button name="sendPlanningToDGdWn" type="object" string="Planning sturen naar Geodynamics"/>
                         <button name="laadPostcalc" type="object" string="Haal nacalculatie op van Geodynamics"/>
+                        <!-- New fetch clockings list action -->
+                        <button name="fetchClockings" type="object" string="Fetch clockings"/>
                     </header>
                 </xpath>
             </field>
@@ -124,10 +142,12 @@
             <field name="model">project.task</field>
             <field name="inherit_id" ref="project.project_task_view_tree_main_base"/>
             <field name="arch" type="xml">
-                <xpath expr="//tree" position="inside">
+                <xpath expr="//list" position="inside">
                     <header>
                         <button name="sendPlanningToDGdWn" type="object" string="Planning sturen naar Geodynamics"/>
                         <button name="laadPostcalc" type="object" string="Haal calculatie op van Geodynamics"/>
+                        <!-- New fetch clockings tree action -->
+                        <button name="fetchClockings" type="object" string="Fetch clockings"/>
                     </header>
                 </xpath>
             </field>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_df_geodynamics_import_wizard_form" model="ir.ui.view">
+        <field name="name">df.geodynamics.import.wizard.form</field>
+        <field name="model">df.geodynamics.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Geodynamics Import / Export">
+                <group>
+                    <field name="df_import_type"/>
+                    <field name="df_direction"/>
+                    <field name="df_match_by_email" invisible="df_import_type != 'employees'"/>
+                    <field name="df_date_from" invisible="df_import_type != 'checkins'"/>
+                    <field name="df_date_to" invisible="df_import_type != 'checkins'"/>
+                </group>
+                <footer>
+                    <button name="action_execute" string="Execute" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_df_geodynamics_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import / Export</field>
+        <field name="res_model">df.geodynamics.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

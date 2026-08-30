@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fleet_vehicle_tree_geodynamics" model="ir.ui.view">
+        <field name="name">fleet.vehicle.list.geodynamics</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <header>
+                    <button name="action_gd_export_to_geodynamics" type="object"
+                            string="Export to Geodynamics"
+                            icon="fa-upload"
+                            groups="fleet.fleet_group_manager"/>
+                    <button name="action_gd_sync_odometer" type="object"
+                            string="Sync Odometer from Geodynamics"
+                            icon="fa-tachometer"
+                            groups="fleet.fleet_group_manager"/>
+                </header>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_fleet_vehicle_form_geodynamics" model="ir.ui.view">
+        <field name="name">fleet.vehicle.form.geodynamics</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Geodynamics">
+                    <group>
+                        <group>
+                            <field name="df_geodynamics_id" string="Sleutel Geodynamics"/>
+                            <field name="df_geodynamics_last_sync" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="df_gd_running_hours" readonly="1" string="Draaiuren (Geodynamics)"/>
+                            <field name="df_gd_odometer_last_sync" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <button name="action_gd_sync_odometer" type="object"
+                                string="Kilometerstand ophalen uit Geodynamics"
+                                icon="fa-tachometer" class="btn-link"
+                                invisible="not df_geodynamics_id"
+                                groups="fleet.fleet_group_manager"/>
+                    </group>
+                    <group string="Raw Geodynamics Data" groups="base.group_no_one">
+                        <button name="action_gd_probe_counters" type="object"
+                                string="Probe counter endpoints (diagnostic)"
+                                icon="fa-stethoscope" class="btn-link"
+                                invisible="not df_geodynamics_id"/>
+                        <field name="df_geodynamics_raw" widget="json" readonly="1" nolabel="1"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

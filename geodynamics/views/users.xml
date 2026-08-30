@@ -13,6 +13,7 @@
                     <page string="Geodynamics">
                         <group>
                             <field name="df_geodynamics_id"/>
+                            <field name="df_task_create_action"/>
                         </group>
                     </page>
                 </xpath>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="event_type_0" model="df.geodynamics.event.type">
+        <field name="name">Absence</field>
+        <field name="df_code">0</field>
+    </record>
+    <record id="event_type_1" model="df.geodynamics.event.type">
+        <field name="name">Activity</field>
+        <field name="df_code">1</field>
+    </record>
+    <record id="event_type_2" model="df.geodynamics.event.type">
+        <field name="name">Allowance</field>
+        <field name="df_code">2</field>
+    </record>
+    <record id="event_type_3" model="df.geodynamics.event.type">
+        <field name="name">Break</field>
+        <field name="df_code">3</field>
+    </record>
+    <record id="event_type_4" model="df.geodynamics.event.type">
+        <field name="name">Movement</field>
+        <field name="df_code">4</field>
+    </record>
+    <record id="event_type_5" model="df.geodynamics.event.type">
+        <field name="name">Work</field>
+        <field name="df_code">5</field>
+    </record>
+    <record id="event_type_6" model="df.geodynamics.event.type">
+        <field name="name">Error</field>
+        <field name="df_code">6</field>
+    </record>
+    <record id="event_type_7" model="df.geodynamics.event.type">
+        <field name="name">Unpaid</field>
+        <field name="df_code">7</field>
+    </record>
+    <record id="event_type_8" model="df.geodynamics.event.type">
+        <field name="name">TravelTime</field>
+        <field name="df_code">8</field>
+    </record>
+    <record id="event_type_9" model="df.geodynamics.event.type">
+        <field name="name">External</field>
+        <field name="df_code">9</field>
+    </record>
+</odoo>
