@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_df_geodynamics_event_type_list" model="ir.ui.view">
+        <field name="name">df.geodynamics.event.type.list</field>
+        <field name="model">df.geodynamics.event.type</field>
+        <field name="arch" type="xml">
+            <list string="Geodynamics Event Types" create="0" delete="0" edit="0">
+                <field name="df_code" string="ID / Code"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_df_geodynamics_event_type_form" model="ir.ui.view">
+        <field name="name">df.geodynamics.event.type.form</field>
+        <field name="model">df.geodynamics.event.type</field>
+        <field name="arch" type="xml">
+            <form string="Geodynamics Event Type">
+                <sheet>
+                    <group>
+                        <field name="df_code" string="ID / Code"/>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_df_geodynamics_event_type" model="ir.actions.act_window">
+        <field name="name">Event Types</field>
+        <field name="res_model">df.geodynamics.event.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Geodynamics event types</p>
+            <p>These are the Geodynamics event types and their IDs. Use the ID in the
+               "Event Types to Import" setting to control which events are imported during post-calculation.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_df_geodynamics_event_type" name="Event Types"
+              parent="geodynamics.menu_root" sequence="98"
+              action="action_df_geodynamics_event_type"
+              groups="base.group_system"/>
+</odoo>

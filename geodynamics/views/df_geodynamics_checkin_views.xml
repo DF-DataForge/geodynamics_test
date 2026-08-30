@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_df_geodynamics_checkin_tree" model="ir.ui.view">
+        <field name="name">df.geodynamics.checkin.tree</field>
+        <field name="model">df.geodynamics.checkin</field>
+        <field name="arch" type="xml">
+            <list string="Checkin at Work" decoration-info="df_status=='checked_in'" decoration-success="df_status=='checked_out'" decoration-danger="df_status=='error'">
+                <field name="df_employee_id"/>
+                <field name="df_date"/>
+                <field name="df_checkin_time"/>
+                <field name="df_checkout_time"/>
+                <field name="df_duration_hours" widget="float_time"/>
+                <field name="df_construction_site"/>
+                <field name="df_site_address" optional="show"/>
+                <field name="df_project_id" optional="show"/>
+                <field name="df_task_id" optional="hide"/>
+                <field name="df_status"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_df_geodynamics_checkin_form" model="ir.ui.view">
+        <field name="name">df.geodynamics.checkin.form</field>
+        <field name="model">df.geodynamics.checkin</field>
+        <field name="arch" type="xml">
+            <form string="Checkin at Work">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="df_employee_id"/>
+                            <field name="df_checkin_time"/>
+                            <field name="df_checkout_time"/>
+                            <field name="df_duration_hours" widget="float_time"/>
+                            <field name="df_status"/>
+                        </group>
+                        <group>
+                            <field name="df_construction_site"/>
+                            <field name="df_site_address"/>
+                            <field name="df_project_id"/>
+                            <field name="df_task_id"/>
+                            <field name="df_geodynamics_id"/>
+                            <field name="df_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Raw Data">
+                            <field name="df_raw_payload" widget="json"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_df_geodynamics_checkin_search" model="ir.ui.view">
+        <field name="name">df.geodynamics.checkin.search</field>
+        <field name="model">df.geodynamics.checkin</field>
+        <field name="arch" type="xml">
+            <search string="Search Check-ins">
+                <field name="df_employee_id"/>
+                <field name="df_construction_site"/>
+                <field name="df_date"/>
+                <field name="df_project_id"/>
+                <filter name="filter_today" string="Today"
+                        domain="[('df_date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_this_week" string="This Week"
+                        domain="[('df_date', '>=', (context_today() - relativedelta(weekday=0)).strftime('%Y-%m-%d')),
+                                 ('df_date', '&lt;', (context_today() + relativedelta(weeks=1, weekday=0)).strftime('%Y-%m-%d'))]"/>
+                <filter name="checked_in" string="Checked In" domain="[('df_status', '=', 'checked_in')]"/>
+                <filter name="checked_out" string="Checked Out" domain="[('df_status', '=', 'checked_out')]"/>
+                <group>
+                    <filter name="group_by_employee" string="Employee" context="{'group_by':'df_employee_id'}"/>
+                    <filter name="group_by_date" string="Date" context="{'group_by':'df_date'}"/>
+                    <filter name="group_by_site" string="Construction Site" context="{'group_by':'df_construction_site'}"/>
+                    <filter name="group_by_project" string="Project" context="{'group_by':'df_project_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_df_geodynamics_checkin_calendar" model="ir.ui.view">
+        <field name="name">df.geodynamics.checkin.calendar</field>
+        <field name="model">df.geodynamics.checkin</field>
+        <field name="arch" type="xml">
+            <calendar string="Check-ins" date_start="df_checkin_time" date_stop="df_checkout_time"
+                      color="df_employee_id" event_limit="5" quick_create="0">
+                <field name="df_employee_id"/>
+                <field name="df_construction_site"/>
+                <field name="df_duration_hours"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_df_geodynamics_checkin_graph" model="ir.ui.view">
+        <field name="name">df.geodynamics.checkin.graph</field>
+        <field name="model">df.geodynamics.checkin</field>
+        <field name="arch" type="xml">
+            <graph string="Check-in Analysis" type="bar">
+                <field name="df_employee_id"/>
+                <field name="df_duration_hours" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_df_geodynamics_checkin_pivot" model="ir.ui.view">
+        <field name="name">df.geodynamics.checkin.pivot</field>
+        <field name="model">df.geodynamics.checkin</field>
+        <field name="arch" type="xml">
+            <pivot string="Check-in Pivot">
+                <field name="df_employee_id" type="row"/>
+                <field name="df_date" type="col" interval="week"/>
+                <field name="df_duration_hours" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_df_geodynamics_checkin" model="ir.actions.act_window">
+        <field name="name">Checkin at Work</field>
+        <field name="res_model">df.geodynamics.checkin</field>
+        <field name="view_mode">list,calendar,graph,pivot,form</field>
+        <field name="search_view_id" ref="view_df_geodynamics_checkin_search"/>
+        <field name="context">{'search_default_filter_this_week': 1, 'search_default_group_by_employee': 1}</field>
+    </record>
+
+    <menuitem id="menu_df_geodynamics_checkin" name="Checkin at Work"
+              parent="geodynamics.menu_root" sequence="35"
+              action="action_df_geodynamics_checkin"/>
+</odoo>

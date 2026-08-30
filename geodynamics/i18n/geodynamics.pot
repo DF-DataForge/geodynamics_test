@@ -1,0 +1,305 @@
+# Translation file for Geodynamics module
+# Copyright (C) 2026 Data Forge
+# This file is distributed under the same license as the Geodynamics module.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Geodynamics 19.0.0.0.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-08 00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. module: geodynamics
+#: model:ir.ui.view,arch_db:geodynamics.res_config_settings_view_form
+msgid "Connection Settings"
+msgstr ""
+
+#. module: geodynamics
+msgid "API Credentials"
+msgstr ""
+
+#. module: geodynamics
+msgid "Configure the connection to the Geodynamics / IntelliTracer API. Enter your company name, API username and password as provided by Geodynamics."
+msgstr ""
+
+#. module: geodynamics
+msgid "Company"
+msgstr ""
+
+#. module: geodynamics
+msgid "Username"
+msgstr ""
+
+#. module: geodynamics
+msgid "Password"
+msgstr ""
+
+#. module: geodynamics
+msgid "Test Connection"
+msgstr ""
+
+#. module: geodynamics
+msgid "Synchronization"
+msgstr ""
+
+#. module: geodynamics
+msgid "Clocking Sync"
+msgstr ""
+
+#. module: geodynamics
+msgid "Configure automatic daily synchronization of clocking records from Geodynamics. Set how many days back the daily cron should fetch data."
+msgstr ""
+
+#. module: geodynamics
+msgid "Days to sync back"
+msgstr ""
+
+#. module: geodynamics
+msgid "Load Plannings from Geodynamics"
+msgstr ""
+
+#. module: geodynamics
+msgid "Employee Sync"
+msgstr ""
+
+#. module: geodynamics
+msgid "Synchronize employees between Odoo and Geodynamics. When enabled, employees are automatically matched by email address during sync."
+msgstr ""
+
+#. module: geodynamics
+msgid "Fleet Sync"
+msgstr ""
+
+#. module: geodynamics
+msgid "Import vehicles and resources from Geodynamics. When enabled, vehicles are automatically synchronized."
+msgstr ""
+
+#. module: geodynamics
+msgid "POI Management"
+msgstr ""
+
+#. module: geodynamics
+msgid "Load POI Types"
+msgstr ""
+
+#. module: geodynamics
+msgid "Checkin at Work"
+msgstr ""
+
+#. module: geodynamics
+msgid "Import construction site check-in records (Checkinatwork / CIAW) from Geodynamics. Required for Belgian construction sector compliance."
+msgstr ""
+
+#. module: geodynamics
+msgid "Planning Configuration"
+msgstr ""
+
+#. module: geodynamics
+msgid "Planning Mode"
+msgstr ""
+
+#. module: geodynamics
+msgid "Choose whether planning is managed at the task level or at the project level. Task-based: each task is planned individually. Project-based: planning is managed from the project."
+msgstr ""
+
+#. module: geodynamics
+msgid "Planning Behavior"
+msgstr ""
+
+#. module: geodynamics
+msgid "Plan directly to Geodynamics on task save"
+msgstr ""
+
+#. module: geodynamics
+msgid "Show warning when plannings overlap"
+msgstr ""
+
+#. module: geodynamics
+msgid "Working Hours"
+msgstr ""
+
+#. module: geodynamics
+msgid "Define the standard workday hours used when splitting multi-day tasks into individual planning entries."
+msgstr ""
+
+#. module: geodynamics
+msgid "Start hour"
+msgstr ""
+
+#. module: geodynamics
+msgid "End hour"
+msgstr ""
+
+#. module: geodynamics
+msgid "Clocking & Time Registration"
+msgstr ""
+
+#. module: geodynamics
+msgid "Post-calculation Source"
+msgstr ""
+
+#. module: geodynamics
+msgid "Woon-Werk (Commute)"
+msgstr ""
+
+#. module: geodynamics
+msgid "Vehicle Codes"
+msgstr ""
+
+#. module: geodynamics
+msgid "Location Tracking"
+msgstr ""
+
+#. module: geodynamics
+msgid "Real-time Tracking"
+msgstr ""
+
+#. module: geodynamics
+msgid "Enable GPS location tracking for employees and vehicles."
+msgstr ""
+
+#. module: geodynamics
+msgid "API Logging"
+msgstr ""
+
+#. module: geodynamics
+msgid "API Request Logging"
+msgstr ""
+
+#. module: geodynamics
+msgid "Log all JSON data exchanged with the Geodynamics API. Useful for debugging and auditing API interactions."
+msgstr ""
+
+#. module: geodynamics
+msgid "Retention (days)"
+msgstr ""
+
+#. module: geodynamics
+msgid "Planning"
+msgstr ""
+
+#. module: geodynamics
+msgid "Clockings"
+msgstr ""
+
+#. module: geodynamics
+msgid "Dashboard"
+msgstr ""
+
+#. module: geodynamics
+msgid "Tracking"
+msgstr ""
+
+#. module: geodynamics
+msgid "Fleet / Vehicles"
+msgstr ""
+
+#. module: geodynamics
+msgid "Import / Export"
+msgstr ""
+
+#. module: geodynamics
+msgid "API Logs"
+msgstr ""
+
+#. module: geodynamics
+msgid "Settings"
+msgstr ""
+
+#. module: geodynamics
+msgid "Remove Planning from Geodynamics"
+msgstr ""
+
+#. module: geodynamics
+msgid "This Week"
+msgstr ""
+
+#. module: geodynamics
+msgid "Next Week"
+msgstr ""
+
+#. module: geodynamics
+msgid "Employee"
+msgstr ""
+
+#. module: geodynamics
+msgid "Project"
+msgstr ""
+
+#. module: geodynamics
+msgid "Task"
+msgstr ""
+
+#. module: geodynamics
+msgid "Employees imported: %d created, %d updated."
+msgstr ""
+
+#. module: geodynamics
+msgid "Fleet imported: %d created, %d updated."
+msgstr ""
+
+#. module: geodynamics
+msgid "POIs imported: %d contacts updated."
+msgstr ""
+
+#. module: geodynamics
+msgid "Checkins imported: %d records created."
+msgstr ""
+
+#. module: geodynamics
+msgid "%d tracking records created."
+msgstr ""
+
+#. module: geodynamics
+msgid "%d check-in records created."
+msgstr ""
+
+#. module: geodynamics
+msgid "Geodynamics API credentials are not configured. Go to Settings > Geodynamics."
+msgstr ""
+
+#. module: geodynamics
+msgid "Check-in Time"
+msgstr ""
+
+#. module: geodynamics
+msgid "Check-out Time"
+msgstr ""
+
+#. module: geodynamics
+msgid "Construction Site"
+msgstr ""
+
+#. module: geodynamics
+msgid "Duration (hours)"
+msgstr ""
+
+#. module: geodynamics
+msgid "Checked In"
+msgstr ""
+
+#. module: geodynamics
+msgid "Checked Out"
+msgstr ""
+
+#. module: geodynamics
+msgid "Today"
+msgstr ""
+
+#. module: geodynamics
+msgid "Yesterday"
+msgstr ""
+
+#. module: geodynamics
+msgid "Success"
+msgstr ""
+
+#. module: geodynamics
+msgid "Errors"
+msgstr ""

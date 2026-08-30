@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree/List view -->
+    <record id="view_employee_timesheet_group_tree" model="ir.ui.view">
+        <field name="name">employee.timesheet.group.tree</field>
+        <field name="model">employee.timesheet.group</field>
+        <field name="arch" type="xml">
+            <list string="Timesheet Groups">
+                <field name="name"/>
+                <field name="employee_ids"/>
+                <field name="extra_time"/>
+                <field name="minimum_time"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="view_employee_timesheet_group_form" model="ir.ui.view">
+        <field name="name">employee.timesheet.group.form</field>
+        <field name="model">employee.timesheet.group</field>
+        <field name="arch" type="xml">
+            <form string="Timesheet Group">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="employee_ids" widget="many2many_tags"/>
+                        <field name="extra_time"/>
+                        <field name="minimum_time"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_employee_timesheet_group" model="ir.actions.act_window">
+        <field name="name">Timesheet Groups</field>
+        <field name="res_model">employee.timesheet.group</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create and manage timesheet groups per employee</p>
+        </field>
+    </record>
+
+    <!-- Menu under Employees > Configuration -->
+    <menuitem id="menu_employee_timesheet_group_root"
+              name="Timesheet Groups"
+              parent="hr.menu_human_resources_configuration"
+              action="action_employee_timesheet_group"
+              sequence="60"/>
+
+</odoo>

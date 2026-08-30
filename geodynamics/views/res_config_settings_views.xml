@@ -9,45 +9,291 @@
             <field name="arch" type="xml">
                 <xpath expr="//form" position="inside">
                     <app data-string="Geodynamics" id="geodynamics" string="Geodynamics" name="geodynamics">
-                        <block title="Login settings" id="gd_login_setting">
-                            <setting string="Login">
-                                <div class="text-muted content-group mt16">
-                                    <span>Bedrijf: </span>
-                                    <field name="geodynamics_company" style="width: 320px"/>
+
+                        <!-- 1. CONNECTION -->
+                        <block title="Connection Settings" id="gd_connection">
+                            <setting string="API Credentials"
+                                     help="Configure the connection to the Geodynamics / IntelliTracer API. Enter your company name, API username and password as provided by Geodynamics.">
+                                <div class="row mt16">
+                                    <label for="df_geodynamics_company" string="Company" class="col-lg-3 o_light_label"/>
+                                    <field name="df_geodynamics_company" class="col-lg-4"
+                                           placeholder="Your IntelliTracer company name"/>
                                 </div>
-                                <div class="text-muted content-group mt16">
-                                    <span>Login: </span>
-                                    <field name="geodynamics_login" style="width: 320px"/>
+                                <div class="row mt8">
+                                    <label for="df_geodynamics_login" string="Username" class="col-lg-3 o_light_label"/>
+                                    <field name="df_geodynamics_login" class="col-lg-4"
+                                           placeholder="API username"/>
                                 </div>
-                                <div class="text-muted content-group mt16">
-                                    <span>Wachtwoord: </span>
-                                    <field name="geodynamics_password" style="width: 320px" password="True"/>
+                                <div class="row mt8">
+                                    <label for="df_geodynamics_password" string="Password" class="col-lg-3 o_light_label"/>
+                                    <field name="df_geodynamics_password" class="col-lg-4" password="True"
+                                           placeholder="API password"/>
                                 </div>
-                                <div class="text-muted content-group mt16">
-                                    <button string="Test verbinding" name="gd_test_verbinding" type="object"/>
+                                <div class="mt16">
+                                    <button string="Test Connection" name="gd_test_verbinding" type="object"
+                                            class="btn-primary" icon="fa-plug"/>
                                 </div>
                             </setting>
                         </block>
-                        <block title="Import" id="gd_import_setting">
-                            <setting string="Import">
-                                <p><button icon="oi-arrow-right" name="gd_fetch_planningen" type="object" string="Planning laden Geodynamics"></button></p>
-                                <p><button icon="oi-arrow-right" name="gd_poitype_to_odoo" type="object" string="POI types laden"></button></p>
+
+                        <!-- 2. SYNCHRONIZATION -->
+                        <block title="Synchronization" id="gd_sync">
+                            <!-- Clocking Sync setting temporarily hidden; to be re-implemented later.
+                            <setting string="Clocking Sync"
+                                     help="Configure automatic daily synchronization of clocking records from Geodynamics. Set how many days back the daily cron should fetch data.">
+                                <div class="row mt16">
+                                    <label for="df_geodynamics_sync_days_back" string="Days to sync back" class="col-lg-3 o_light_label"/>
+                                    <field name="df_geodynamics_sync_days_back" class="col-lg-2"/>
+                                </div>
+                            </setting>
+                            -->
+                            <setting string="Employee Sync"
+                                     help="Synchronize employees between Odoo and Geodynamics. When enabled, employees are automatically matched by email address during sync.">
+                                <field name="df_geodynamics_auto_sync_employees"/>
+                            </setting>
+                            <setting string="Fleet Sync"
+                                     help="Import vehicles and resources from Geodynamics. When enabled, vehicles are automatically synchronized.">
+                                <field name="df_geodynamics_auto_sync_fleet"/>
+                            </setting>
+                            <setting string="Odometer Sync"
+                                     help="Log kilometers from Geodynamics into the Odoo fleet odometer. A daily background job reads the vehicle counters from Geodynamics (or computes driven km from trip data) and creates odometer entries per vehicle.">
+                                <field name="df_geodynamics_auto_sync_odometer"/>
+                                <div class="row mt16" invisible="not df_geodynamics_auto_sync_odometer">
+                                    <label for="df_geodynamics_odometer_days_back" string="Initial days back" class="col-lg-5 o_light_label"/>
+                                    <field name="df_geodynamics_odometer_days_back" class="col-lg-2"/>
+                                </div>
+                                <div class="mt8">
+                                    <button icon="fa-tachometer" name="gd_sync_odometer" type="object"
+                                            string="Sync Odometers Now" class="btn-link"/>
+                                </div>
+                            </setting>
+                            <setting string="Leave Sync"
+                                     help="Automatically sync leaves/absences from Geodynamics to Odoo. When enabled, a daily background job imports leave records from Geodynamics as leave requests in Odoo. Configure how far back and ahead the job fetches leaves.">
+                                <field name="df_geodynamics_auto_sync_leaves"/>
+                                <div class="row mt16" invisible="not df_geodynamics_auto_sync_leaves">
+                                    <label for="df_geodynamics_leave_sync_months_back" string="Months in the past" class="col-lg-5 o_light_label"/>
+                                    <field name="df_geodynamics_leave_sync_months_back" class="col-lg-2"/>
+                                </div>
+                                <div class="row mt8" invisible="not df_geodynamics_auto_sync_leaves">
+                                    <label for="df_geodynamics_leave_sync_months_forward" string="Months in the future" class="col-lg-5 o_light_label"/>
+                                    <field name="df_geodynamics_leave_sync_months_forward" class="col-lg-2"/>
+                                </div>
+                            </setting>
+                            <setting string="Planning Sync"
+                                     help="Automatically export task plannings to Geodynamics. When enabled, a background job pushes plannings for tasks that are not yet created in Geodynamics, so you don't have to press 'Plan to Geodynamics' on each task.">
+                                <field name="df_geodynamics_auto_sync_planning"/>
+                            </setting>
+                            <setting string="POI Management"
+                                     help="Points of Interest (POI) management. Load POI types from Geodynamics to use in planning and contact synchronization.">
+                                <div class="mt8">
+                                    <button icon="fa-map-marker" name="gd_poitype_to_odoo" type="object"
+                                            string="Load POI Types" class="btn-link"/>
+                                </div>
+                            </setting>
+                            <setting string="Checkin at Work"
+                                     help="Import construction site check-in records (Checkinatwork / CIAW) from Geodynamics. Required for Belgian construction sector compliance.">
+                                <field name="df_geodynamics_enable_checkin"/>
                             </setting>
                         </block>
-                         <block title="Tools" id="gd_tools_setting">
-                            <setting string="Tools">
-                                <p><button icon="oi-arrow-right" name="gd_erase_planningen" type="object" confirm="Alle planningen wissen?" string="Planningen gebruikers wissen"></button></p>
+
+                        <!-- 3. PLANNING -->
+                        <block title="Planning Configuration" id="gd_planning">
+                            <setting string="Planning on project level"
+                                     help="When enabled, Geodynamics planning features (buttons, tabs, post-calculation) are available on projects.">
+                                <field name="df_geodynamics_planning_project"/>
+                            </setting>
+                            <setting string="Planning on task level"
+                                     help="When enabled, Geodynamics planning features (buttons, tabs, post-calculation) are available on tasks.">
+                                <field name="df_geodynamics_planning_task"/>
+                            </setting>
+                            <setting string="Plan directly to Geodynamics on task save"
+                                     help="When enabled, planning is automatically pushed to Geodynamics whenever a task is saved.">
+                                <field name="df_plan_directly"/>
+                            </setting>
+                            <setting string="Show warning when plannings overlap"
+                                     help="When enabled, a warning is shown if the task's planning overlaps with other plannings.">
+                                <field name="df_geodynamics_warning_planning_overlap"/>
+                            </setting>
+                            <setting string="Working Hours"
+                                     help="Define the standard workday hours used when splitting multi-day tasks into individual planning entries. For example, 6:00-15:00 means work periods are created within these hours on each workday.">
+                                <div class="row mt16">
+                                    <label for="df_geodynamics_workday_start" string="Start hour" class="col-lg-3 o_light_label"/>
+                                    <field name="df_geodynamics_workday_start" class="col-lg-2" widget="float_time"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="df_geodynamics_workday_end" string="End hour" class="col-lg-3 o_light_label"/>
+                                    <field name="df_geodynamics_workday_end" class="col-lg-2" widget="float_time"/>
+                                </div>
                             </setting>
                         </block>
-                        <block title="Algemene instellingen" id="gd_general_settings">
-                            <setting string="Algemene instellingen">
-                                <group>
-                                    <field name="geodynamics_postcalcsource"/>
-                                    <field name="geodynamics_warning_planning_overlap"/>
-                                    <field name="df_plan_directly"></field>
-                                </group>
+
+                        <!-- 4. POST-CALCULATION -->
+                        <block title="Post-calculation" id="gd_postcalc">
+                            <setting string="Post-calculation Source"
+                                     help="Choose the data source for post-calculation. 'Timesheet events' uses timesheet data; 'Post-calculation events' uses the dedicated post-calculation export from Geodynamics.">
+                                <div class="row mt16">
+                                    <label for="df_geodynamics_postcalcsource" string="Source" class="col-lg-3 o_light_label"/>
+                                    <field name="df_geodynamics_postcalcsource" class="col-lg-4"/>
+                                </div>
+                            </setting>
+                            <setting string="Event Types to Import"
+                                     help="Select which event types should be imported during post-calculation. Leave empty to import all event types.">
+                                <div class="row mt16">
+                                    <label for="df_geodynamics_import_event_types" string="Event types" class="col-lg-3 o_light_label"/>
+                                    <field name="df_geodynamics_import_event_types" class="col-lg-6" widget="many2many_tags"/>
+                                </div>
                             </setting>
                         </block>
+
+                        <!-- Woon-Werk (clocking) setting temporarily hidden; to be re-implemented later.
+                        <block title="Clocking &amp; Time Registration" id="gd_clocking">
+                            <setting string="Woon-Werk (Commute)"
+                                     help="Specify vehicle codes used for commute (woon-werk) detection. When a clocking record matches one of these vehicle codes, it is flagged as a commute entry. Separate multiple codes with commas.">
+                                <div class="row mt16">
+                                    <label for="df_geodynamics_woon_werk_vehicle_codes" string="Vehicle Codes" class="col-lg-3 o_light_label"/>
+                                    <field name="df_geodynamics_woon_werk_vehicle_codes" class="col-lg-4"
+                                           placeholder="CODE1,CODE2,CODE3"/>
+                                </div>
+                            </setting>
+                        </block>
+                        -->
+
+                        <!-- 5. TRACKING -->
+                        <!-- Location Tracking settings temporarily hidden; to be re-implemented later.
+                        <block title="Location Tracking" id="gd_tracking">
+                            <setting string="Real-time Tracking"
+                                     help="Enable GPS location tracking for employees and vehicles. When enabled, location data is periodically fetched from Geodynamics and stored for analysis.">
+                                <field name="df_geodynamics_enable_tracking"/>
+                                <div class="row mt16" invisible="not df_geodynamics_enable_tracking">
+                                    <label for="df_geodynamics_tracking_interval" string="Fetch interval" class="col-lg-3 o_light_label"/>
+                                    <field name="df_geodynamics_tracking_interval" class="col-lg-4"/>
+                                </div>
+                            </setting>
+                        </block>
+                        -->
+
+                        <!-- 6. IMPORT / EXPORT -->
+                        <block title="Import / Export" id="gd_import_export">
+                            <setting string="Employees"
+                                     help="Synchronize employees between Odoo and Geodynamics. Export pushes linked employees and creates new users in Geodynamics for unlinked employees.">
+                                <field name="df_geodynamics_match_by_email"
+                                       string="Match employees by email address during import/export"/>
+                                <div class="mt8">
+                                    <button icon="fa-download" name="gd_import_employees" type="object"
+                                            string="Import from Geodynamics" class="btn-link"/>
+                                </div>
+                                <div class="mt4">
+                                    <button icon="fa-upload" name="gd_export_employees" type="object"
+                                            string="Export to Geodynamics" class="btn-link"/>
+                                </div>
+                                <div class="mt4">
+                                    <button icon="fa-exchange" name="gd_sync_employees" type="object"
+                                            string="Bidirectional Sync" class="btn-link"/>
+                                </div>
+                            </setting>
+                            <setting string="Fleet / Vehicles"
+                                     help="Synchronize vehicles between Odoo and Geodynamics. Export pushes linked vehicles and creates new vehicles in Geodynamics for unlinked ones.">
+                                <field name="df_geodynamics_match_fleet_by_plate"
+                                       string="Match vehicles by license plate during import/export"/>
+                                <div class="mt8">
+                                    <button icon="fa-download" name="gd_import_fleet" type="object"
+                                            string="Import from Geodynamics" class="btn-link"/>
+                                </div>
+                                <div class="mt4">
+                                    <button icon="fa-upload" name="gd_export_fleet" type="object"
+                                            string="Export to Geodynamics" class="btn-link"/>
+                                </div>
+                            </setting>
+                            <setting string="Points of Interest"
+                                     help="Import POIs from Geodynamics and match them to existing contacts in Odoo by POI ID or name.">
+                                <div class="mt8">
+                                    <button icon="fa-download" name="gd_import_pois" type="object"
+                                            string="Import from Geodynamics" class="btn-link"/>
+                                </div>
+                            </setting>
+                            <setting string="Checkin at Work (CIAW)"
+                                     help="Import construction site check-in records from Geodynamics. Set a start date to import checkins from that date until today, or leave empty to import only today's checkins.">
+                                <div class="row mt16">
+                                    <label for="df_geodynamics_checkin_from_date" string="Import since" class="col-lg-3 o_light_label"/>
+                                    <field name="df_geodynamics_checkin_from_date" class="col-lg-4" placeholder="YYYY-MM-DD"/>
+                                </div>
+                                <div class="mt8">
+                                    <button icon="fa-download" name="gd_import_checkins" type="object"
+                                            string="Import Check-ins" class="btn-link"/>
+                                </div>
+                            </setting>
+                            <setting string="Plannings"
+                                     help="Load plannings from Geodynamics into Odoo. Set a start date to control how far back to fetch.">
+                                <div class="mt8">
+                                    <button icon="fa-download" name="gd_fetch_planningen" type="object"
+                                            string="Import from Geodynamics" class="btn-link"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="df_geodynamics_planning_from_date" string="From date" class="col-lg-3 o_light_label"/>
+                                    <field name="df_geodynamics_planning_from_date" class="col-lg-4"
+                                           placeholder="YYYY-MM-DD"/>
+                                </div>
+                            </setting>
+                            <setting string="Leave Types / Absence Types"
+                                     help="Transfer Odoo leave types to Geodynamics as absence types. Matches by name to avoid duplicates. Use 'Link Leave Types by Name' to connect existing Odoo leave types to their Geodynamics absence type; only linked leave types take part in the leave sync.">
+                                <div class="mt8">
+                                    <button icon="fa-upload" name="gd_export_leave_types" type="object"
+                                            string="Export Leave Types to Geodynamics" class="btn-link"/>
+                                </div>
+                                <div class="mt4">
+                                    <button icon="fa-link" name="gd_link_leave_types" type="object"
+                                            string="Link Leave Types by Name" class="btn-link"/>
+                                </div>
+                            </setting>
+                            <setting string="Leaves / Absences"
+                                     help="Import absence records from Geodynamics as leave requests in Odoo. Only leave types linked to Geodynamics (via the 'Geodynamics' field on the leave type) are imported; unlinked types are skipped.">
+                                <div class="row mt16">
+                                    <label for="df_geodynamics_leave_from_date" string="Import since" class="col-lg-3 o_light_label"/>
+                                    <field name="df_geodynamics_leave_from_date" class="col-lg-4" placeholder="YYYY-MM-DD"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="df_geodynamics_leave_to_date" string="Import until" class="col-lg-3 o_light_label"/>
+                                    <field name="df_geodynamics_leave_to_date" class="col-lg-4" placeholder="YYYY-MM-DD"/>
+                                </div>
+                                <div class="mt8">
+                                    <button icon="fa-download" name="gd_import_leaves" type="object"
+                                            string="Import Leaves from Geodynamics" class="btn-link"/>
+                                </div>
+                                <div class="mt8">
+                                    <button icon="fa-trash" name="gd_eliminate_double_leaves" type="object"
+                                            string="Eliminate double leaves" class="btn-link"
+                                            confirm="This will delete duplicate leave records (same employee, same leave type, same date). Continue?"/>
+                                </div>
+                            </setting>
+                            <setting string="Auto-approve leaves"
+                                     help="When enabled, imported leaves are automatically approved. When disabled, they remain as drafts for manual review.">
+                                <field name="df_geodynamics_auto_approve_leave"/>
+                            </setting>
+                            <setting string="POI Types"
+                                     help="Load POI type definitions from Geodynamics.">
+                                <div class="mt8">
+                                    <button icon="fa-download" name="gd_poitype_to_odoo" type="object"
+                                            string="Import from Geodynamics" class="btn-link"/>
+                                </div>
+                            </setting>
+                        </block>
+
+                        <!-- 7. API / ERROR LOGGING -->
+                        <block title="API / Error Logging" id="gd_api_logging">
+                            <setting string="API Request Logging"
+                                     help="Log all JSON data exchanged with the Geodynamics API. Useful for debugging and auditing API interactions. Old logs are automatically cleaned up based on the retention period.">
+                                <field name="df_geodynamics_enable_api_logging"/>
+                                <div class="row mt16" invisible="not df_geodynamics_enable_api_logging">
+                                    <label for="df_geodynamics_api_log_retention_days" string="Retention (days)" class="col-lg-3 o_light_label"/>
+                                    <field name="df_geodynamics_api_log_retention_days" class="col-lg-2"/>
+                                </div>
+                            </setting>
+                            <setting string="Verbose Logging"
+                                     help="When enabled, detailed processing logs are written during imports and syncs (e.g. each absence processed, each employee matched). Useful for troubleshooting import errors.">
+                                <field name="df_geodynamics_verbose_logging"/>
+                            </setting>
+                        </block>
+
                     </app>
                 </xpath>
             </field>
@@ -57,12 +303,12 @@
             <field name="name">Settings</field>
             <field name="res_model">res.config.settings</field>
             <field name="view_mode">form</field>
-            <field name="target">inline</field>
+            <field name="target">main</field>
             <field name="context">{'module' : 'geodynamics', 'bin_size': False}</field>
         </record>
 
         <menuitem id="geodynamics_config_settings_menu" name="Settings"
-            parent="geodynamics.menu_root" sequence="10"
+            parent="geodynamics.menu_root" sequence="99"
                   action="geodynamics_config_settings_action"
             groups="base.group_system"/>
     </data>

@@ -1,0 +1,520 @@
+# French (Belgium) translation for Geodynamics module
+# Copyright (C) 2026 Data Forge
+# This file is distributed under the same license as the Geodynamics module.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Geodynamics 19.0.0.0.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-08 00:00+0000\n"
+"PO-Revision-Date: 2026-03-08 00:00+0000\n"
+"Last-Translator: Data Forge\n"
+"Language-Team: French (Belgium)\n"
+"Language: fr_BE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. module: geodynamics
+msgid "Connection Settings"
+msgstr "Paramètres de connexion"
+
+#. module: geodynamics
+msgid "API Credentials"
+msgstr "Identifiants API"
+
+#. module: geodynamics
+msgid "Configure the connection to the Geodynamics / IntelliTracer API. Enter your company name, API username and password as provided by Geodynamics."
+msgstr "Configurez la connexion à l'API Geodynamics / IntelliTracer. Entrez le nom de votre entreprise, le nom d'utilisateur et le mot de passe API fournis par Geodynamics."
+
+#. module: geodynamics
+msgid "Company"
+msgstr "Entreprise"
+
+#. module: geodynamics
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+#. module: geodynamics
+msgid "Password"
+msgstr "Mot de passe"
+
+#. module: geodynamics
+msgid "Test Connection"
+msgstr "Tester la connexion"
+
+#. module: geodynamics
+msgid "Synchronization"
+msgstr "Synchronisation"
+
+#. module: geodynamics
+msgid "Clocking Sync"
+msgstr "Synchronisation des pointages"
+
+#. module: geodynamics
+msgid "Configure automatic daily synchronization of clocking records from Geodynamics. Set how many days back the daily cron should fetch data."
+msgstr "Configurez la synchronisation quotidienne automatique des enregistrements de pointage depuis Geodynamics. Définissez le nombre de jours en arrière pour la récupération des données."
+
+#. module: geodynamics
+msgid "Days to sync back"
+msgstr "Jours de synchronisation en arrière"
+
+#. module: geodynamics
+msgid "Load Plannings from Geodynamics"
+msgstr "Charger les planifications depuis Geodynamics"
+
+#. module: geodynamics
+msgid "Employee Sync"
+msgstr "Synchronisation des employés"
+
+#. module: geodynamics
+msgid "Synchronize employees between Odoo and Geodynamics. When enabled, employees are automatically matched by email address during sync."
+msgstr "Synchronisez les employés entre Odoo et Geodynamics. Lorsqu'elle est activée, les employés sont automatiquement associés par adresse e-mail."
+
+#. module: geodynamics
+msgid "Fleet Sync"
+msgstr "Synchronisation de la flotte"
+
+#. module: geodynamics
+msgid "Import vehicles and resources from Geodynamics. When enabled, vehicles are automatically synchronized."
+msgstr "Importez les véhicules et ressources depuis Geodynamics. Lorsqu'elle est activée, les véhicules sont automatiquement synchronisés."
+
+#. module: geodynamics
+msgid "POI Management"
+msgstr "Gestion des POI"
+
+#. module: geodynamics
+msgid "Load POI Types"
+msgstr "Charger les types de POI"
+
+#. module: geodynamics
+msgid "Checkin at Work"
+msgstr "Checkin at Work"
+
+#. module: geodynamics
+msgid "Import construction site check-in records (Checkinatwork / CIAW) from Geodynamics. Required for Belgian construction sector compliance."
+msgstr "Importez les enregistrements d'arrivée sur chantier (Checkinatwork / CIAW) depuis Geodynamics. Obligatoire pour la conformité du secteur de la construction belge."
+
+#. module: geodynamics
+msgid "Planning Configuration"
+msgstr "Configuration de la planification"
+
+#. module: geodynamics
+msgid "Planning Mode"
+msgstr "Mode de planification"
+
+#. module: geodynamics
+msgid "Choose whether planning is managed at the task level or at the project level. Task-based: each task is planned individually. Project-based: planning is managed from the project."
+msgstr "Choisissez si la planification est gérée au niveau de la tâche ou du projet. Par tâche : chaque tâche est planifiée individuellement. Par projet : la planification est gérée depuis le projet."
+
+#. module: geodynamics
+msgid "Planning Behavior"
+msgstr "Comportement de planification"
+
+#. module: geodynamics
+msgid "Plan directly to Geodynamics on task save"
+msgstr "Planifier directement dans Geodynamics lors de l'enregistrement de la tâche"
+
+#. module: geodynamics
+msgid "Show warning when plannings overlap"
+msgstr "Afficher un avertissement lorsque les planifications se chevauchent"
+
+#. module: geodynamics
+msgid "Working Hours"
+msgstr "Heures de travail"
+
+#. module: geodynamics
+msgid "Define the standard workday hours used when splitting multi-day tasks into individual planning entries."
+msgstr "Définissez les heures de travail standard utilisées pour diviser les tâches multi-jours en entrées de planification individuelles."
+
+#. module: geodynamics
+msgid "Start hour"
+msgstr "Heure de début"
+
+#. module: geodynamics
+msgid "End hour"
+msgstr "Heure de fin"
+
+#. module: geodynamics
+msgid "Clocking & Time Registration"
+msgstr "Pointage & Enregistrement du temps"
+
+#. module: geodynamics
+msgid "Post-calculation Source"
+msgstr "Source de post-calcul"
+
+#. module: geodynamics
+msgid "Woon-Werk (Commute)"
+msgstr "Domicile-travail"
+
+#. module: geodynamics
+msgid "Vehicle Codes"
+msgstr "Codes véhicule"
+
+#. module: geodynamics
+msgid "Location Tracking"
+msgstr "Suivi de localisation"
+
+#. module: geodynamics
+msgid "Real-time Tracking"
+msgstr "Suivi en temps réel"
+
+#. module: geodynamics
+msgid "Enable GPS location tracking for employees and vehicles."
+msgstr "Activez le suivi GPS pour les employés et les véhicules."
+
+#. module: geodynamics
+msgid "API Logging"
+msgstr "Journalisation API"
+
+#. module: geodynamics
+msgid "API Request Logging"
+msgstr "Journalisation des requêtes API"
+
+#. module: geodynamics
+msgid "Log all JSON data exchanged with the Geodynamics API. Useful for debugging and auditing API interactions."
+msgstr "Journalisez toutes les données JSON échangées avec l'API Geodynamics. Utile pour le débogage et l'audit des interactions API."
+
+#. module: geodynamics
+msgid "Retention (days)"
+msgstr "Rétention (jours)"
+
+#. module: geodynamics
+msgid "Planning"
+msgstr "Planification"
+
+#. module: geodynamics
+msgid "Clockings"
+msgstr "Pointages"
+
+#. module: geodynamics
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+#. module: geodynamics
+msgid "Tracking"
+msgstr "Suivi"
+
+#. module: geodynamics
+msgid "Fleet / Vehicles"
+msgstr "Flotte / Véhicules"
+
+#. module: geodynamics
+msgid "Import / Export"
+msgstr "Import / Export"
+
+#. module: geodynamics
+msgid "API Logs"
+msgstr "Journaux API"
+
+#. module: geodynamics
+msgid "Settings"
+msgstr "Paramètres"
+
+#. module: geodynamics
+msgid "Remove Planning from Geodynamics"
+msgstr "Supprimer la planification de Geodynamics"
+
+#. module: geodynamics
+msgid "This Week"
+msgstr "Cette semaine"
+
+#. module: geodynamics
+msgid "Next Week"
+msgstr "Semaine prochaine"
+
+#. module: geodynamics
+msgid "Employee"
+msgstr "Employé"
+
+#. module: geodynamics
+msgid "Project"
+msgstr "Projet"
+
+#. module: geodynamics
+msgid "Task"
+msgstr "Tâche"
+
+#. module: geodynamics
+msgid "Employees imported: %d created, %d updated."
+msgstr "Employés importés : %d créés, %d mis à jour."
+
+#. module: geodynamics
+msgid "Fleet imported: %d created, %d updated."
+msgstr "Flotte importée : %d créés, %d mis à jour."
+
+#. module: geodynamics
+msgid "POIs imported: %d contacts updated."
+msgstr "POI importés : %d contacts mis à jour."
+
+#. module: geodynamics
+msgid "Checkins imported: %d records created."
+msgstr "Check-ins importés : %d enregistrements créés."
+
+#. module: geodynamics
+msgid "%d tracking records created."
+msgstr "%d enregistrements de suivi créés."
+
+#. module: geodynamics
+msgid "%d check-in records created."
+msgstr "%d enregistrements de check-in créés."
+
+#. module: geodynamics
+msgid "Geodynamics API credentials are not configured. Go to Settings > Geodynamics."
+msgstr "Les identifiants API Geodynamics ne sont pas configurés. Allez dans Paramètres > Geodynamics."
+
+#. module: geodynamics
+msgid "Check-in Time"
+msgstr "Heure d'arrivée"
+
+#. module: geodynamics
+msgid "Check-out Time"
+msgstr "Heure de départ"
+
+#. module: geodynamics
+msgid "Construction Site"
+msgstr "Chantier"
+
+#. module: geodynamics
+msgid "Duration (hours)"
+msgstr "Durée (heures)"
+
+#. module: geodynamics
+msgid "Checked In"
+msgstr "Enregistré"
+
+#. module: geodynamics
+msgid "Checked Out"
+msgstr "Sorti"
+
+#. module: geodynamics
+msgid "Today"
+msgstr "Aujourd'hui"
+
+#. module: geodynamics
+msgid "Yesterday"
+msgstr "Hier"
+
+#. module: geodynamics
+msgid "Success"
+msgstr "Succès"
+
+#. module: geodynamics
+msgid "Errors"
+msgstr "Erreurs"
+
+#. module: geodynamics
+msgid "Task-based"
+msgstr "Par tâche"
+
+#. module: geodynamics
+msgid "Project-based"
+msgstr "Par projet"
+
+#. module: geodynamics
+msgid "Fetch interval"
+msgstr "Intervalle de récupération"
+
+#. module: geodynamics
+msgid "Sync with Geodynamics"
+msgstr "Synchroniser avec Geodynamics"
+
+#. module: geodynamics
+msgid "Name"
+msgstr "Nom"
+
+#. module: geodynamics
+msgid "License Plate"
+msgstr "Plaque d'immatriculation"
+
+#. module: geodynamics
+msgid "Brand"
+msgstr "Marque"
+
+#. module: geodynamics
+msgid "Model"
+msgstr "Modèle"
+
+#. module: geodynamics
+msgid "Vehicle Type"
+msgstr "Type de véhicule"
+
+#. module: geodynamics
+msgid "Active"
+msgstr "Actif"
+
+#. module: geodynamics
+msgid "Archived"
+msgstr "Archivé"
+
+#. module: geodynamics
+msgid "Execute"
+msgstr "Exécuter"
+
+#. module: geodynamics
+msgid "Cancel"
+msgstr "Annuler"
+
+#. module: geodynamics
+msgid "Import Type"
+msgstr "Type d'import"
+
+#. module: geodynamics
+msgid "Direction"
+msgstr "Direction"
+
+#. module: geodynamics
+msgid "Match by Email"
+msgstr "Associer par e-mail"
+
+#. module: geodynamics
+msgid "Import from Geodynamics"
+msgstr "Importer depuis Geodynamics"
+
+#. module: geodynamics
+msgid "Export to Geodynamics"
+msgstr "Exporter vers Geodynamics"
+
+#. module: geodynamics
+msgid "Bidirectional Sync"
+msgstr "Synchronisation bidirectionnelle"
+
+#. module: geodynamics
+msgid "Employees"
+msgstr "Employés"
+
+#. module: geodynamics
+msgid "Points of Interest"
+msgstr "Points d'intérêt"
+
+#. module: geodynamics
+msgid "Date From"
+msgstr "Date de début"
+
+#. module: geodynamics
+msgid "Date To"
+msgstr "Date de fin"
+
+#. module: geodynamics
+msgid "Fetch Tracking Data"
+msgstr "Récupérer les données de suivi"
+
+#. module: geodynamics
+msgid "Fetch Check-ins"
+msgstr "Récupérer les check-ins"
+
+#. module: geodynamics
+msgid "Site Address"
+msgstr "Adresse du chantier"
+
+#. module: geodynamics
+msgid "POI Name"
+msgstr "Nom du POI"
+
+#. module: geodynamics
+msgid "POI Type"
+msgstr "Type de POI"
+
+#. module: geodynamics
+msgid "POI Latitude"
+msgstr "Latitude du POI"
+
+#. module: geodynamics
+msgid "POI Longitude"
+msgstr "Longitude du POI"
+
+#. module: geodynamics
+msgid "HTTP Method"
+msgstr "Méthode HTTP"
+
+#. module: geodynamics
+msgid "Full URL"
+msgstr "URL complète"
+
+#. module: geodynamics
+msgid "Request Payload"
+msgstr "Données de la requête"
+
+#. module: geodynamics
+msgid "Response Payload"
+msgstr "Données de la réponse"
+
+#. module: geodynamics
+msgid "HTTP Status Code"
+msgstr "Code de statut HTTP"
+
+#. module: geodynamics
+msgid "Duration (ms)"
+msgstr "Durée (ms)"
+
+#. module: geodynamics
+msgid "Error Message"
+msgstr "Message d'erreur"
+
+#. module: geodynamics
+msgid "Triggered By"
+msgstr "Déclenché par"
+
+#. module: geodynamics
+msgid "Employees to plan"
+msgstr "Employés à planifier"
+
+#. module: geodynamics
+msgid "Fetch Post-Calculation"
+msgstr "Récupérer le post-calcul"
+
+#. module: geodynamics
+msgid "Plan in Geodynamics"
+msgstr "Planifier dans Geodynamics"
+
+#. module: geodynamics
+msgid "Fetch Clockings"
+msgstr "Récupérer les pointages"
+
+#. module: geodynamics
+msgid "Geodynamics Plannings:"
+msgstr "Planifications dans Geodynamics :"
+
+#. module: geodynamics
+msgid "Geodynamics POI Id:"
+msgstr "Geodynamics POI Id :"
+
+#. module: geodynamics
+msgid "Warning, the following employees have no Geodynamics Id and cannot be planned in Geodynamics:"
+msgstr "Attention, les employés suivants n'ont pas d'identifiant Geodynamics et ne pourront pas être planifiés dans Geodynamics :"
+
+#. module: geodynamics
+msgid "Warning, the following plannings overlap with the current task's planning:"
+msgstr "Attention, les planifications suivantes chevauchent la planification de la tâche actuelle :"
+
+#. module: geodynamics
+msgid "Export to Geodynamics"
+msgstr "Exporter vers Geodynamics"
+
+#. module: geodynamics
+msgid "Import from Geodynamics"
+msgstr "Importer depuis Geodynamics"
+
+#. module: geodynamics
+msgid "Bidirectional Sync"
+msgstr "Synchronisation bidirectionnelle"
+
+#. module: geodynamics
+msgid "Match employees by email address during import/export"
+msgstr "Associer les employés par adresse e-mail lors de l'import/export"
+
+#. module: geodynamics
+msgid "Match vehicles by license plate during import/export"
+msgstr "Associer les véhicules par plaque d'immatriculation lors de l'import/export"
+
+#. module: geodynamics
+msgid "Plan directly to Geodynamics on task save"
+msgstr "Planifier directement dans Geodynamics lors de l'enregistrement de la tâche"
+
+#. module: geodynamics
+msgid "Show warning when plannings overlap"
+msgstr "Afficher un avertissement lorsque les planifications se chevauchent"
+
+#. module: geodynamics
+msgid "Sleutel Geodynamics"
+msgstr "Clé Geodynamics"

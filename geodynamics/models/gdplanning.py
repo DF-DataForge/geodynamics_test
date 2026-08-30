@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 class GeodynamicsPlanning(models.Model):
     _name = 'df.geodynamics.planning'
     _description = 'Geodynamics Planning'
+    _rec_name = 'activitynumber'
 
     start_datetime = fields.Datetime(string="Van", required=True)
     end_datetime = fields.Datetime(string="Tot", required=True)
@@ -17,22 +18,34 @@ class GeodynamicsPlanning(models.Model):
     employee_id = fields.Many2one(comodel_name='hr.employee', string='Werknemer')
     user_id = fields.Many2one(comodel_name='res.users', string='Gebruiker')
     activitynumber = fields.Char(string='Activity number')
-    decription = fields.Char(string='Description')
+    description = fields.Char(string='Description')
+    df_color = fields.Integer(string='Color Index', compute='_compute_color')
 
-    display_name = fields.Char(compute='_compute_display_name')
     display_name_with_task = fields.Char(compute='_compute_display_name_with_task')
 
+    @api.depends('task_id', 'employee_id', 'start_datetime', 'end_datetime')
     def _compute_display_name(self):
+        """Show task, employee and planning period in tags/labels (e.g. overlap pills)."""
         for record in self:
-            dStart = record.start_datetime + timedelta(hours=2)
-            dEnd = record.end_datetime + timedelta(hours = 2)
-
-            sDisplayName = str(record.employee_id.name) + ' - ' + dStart.strftime('%d/%m %H:%M') + ' -> ' + dEnd.strftime('%d/%m %H:%M')
-
+            emp_name = record.employee_id.name or ''
+            if record.start_datetime and record.end_datetime:
+                period = '%s → %s' % (
+                    record.start_datetime.strftime('%d/%m %H:%M'),
+                    record.end_datetime.strftime('%d/%m %H:%M'),
+                )
+            else:
+                period = ''
             if record.task_id:
-                sDisplayName = sDisplayName + ' (' + record.task_id.df_gd_name + ')'
+                label = ('[%s] %s' % (record.task_id.name, emp_name)).strip()
+            else:
+                label = emp_name
+            if period:
+                label = ('%s - %s' % (label, period)) if label else period
+            record.display_name = label or (record.activitynumber or '')
 
-            record.display_name = sDisplayName
+    def _compute_color(self):
+        for record in self:
+            record.df_color = (record.employee_id.id or 0) % 12
 
     def _compute_display_name_with_task(self):
         for record in self:
@@ -43,7 +56,7 @@ class GeodynamicsPlanning(models.Model):
                 record.display_name_with_task = str(record.employee_id.name) + ' - ' + record.start_datetime.strftime('%d/%m %H:%M') + '->' + record.end_datetime.strftime('%d/%m %H:%M')
 
 
-    def removePlanning(self):
+    def unlink(self):
         company = self.env['ir.config_parameter'].sudo().get_param('geodynamics.company')
         login = self.env['ir.config_parameter'].sudo().get_param('geodynamics.username')
         password = self.env['ir.config_parameter'].sudo().get_param('geodynamics.password')
@@ -51,5 +64,10 @@ class GeodynamicsPlanning(models.Model):
         gdHandler = GeodynamicsHandler(login, password, company, self.env)
 
         for record in self:
-            gdHandler.removePlanning(record.id_geodynamics)
-            record.unlink()
+            if record.id_geodynamics:
+                gdHandler.removePlanning(record.id_geodynamics)
+
+        return super(GeodynamicsPlanning, self).unlink()
+
+    def removePlanning(self):
+        self.unlink()
