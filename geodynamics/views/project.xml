@@ -1,0 +1,49 @@
+<!-- Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+     License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details. -->
+<odoo>
+    <data>
+        <record id="view_project_form_geodynamics_tab" model="ir.ui.view">
+        <field name="name">project.form.geodynamics.tab</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"></field>
+            <field name="arch" type="xml">
+                <notebook position="inside">
+                    <page string="Geodynamics" invisible="not df_gd_planning_enabled">
+                        <field name="df_gd_planning_enabled" invisible="1"/>
+                        <group>
+                            <field name="df_gd_employee_ids" widget="many2many_tags"/>
+                        </group>
+                        <div class="mt8">
+                            <button name="sendPlanningToDGd" string="Zet planning Geodynamics" type="object" class="btn-primary"/>
+                            <button name="laadPostcalc" string="Laad post calculatie" type="object" class="btn-primary"/>
+                        </div>
+                        <div class="col-12 mt16">
+                            <p>Geodynamics Plannings:</p>
+                            <field name="df_gd_planning_ids" mode="list">
+                                <list create="false">
+                                    <field name="employee_id"/>
+                                    <field name="start_datetime"/>
+                                    <field name="end_datetime"/>
+                                    <button name="removePlanning" type="object" icon="fa-trash"
+                                            title="Delete planning"
+                                            confirm="Delete this planning? It will also be removed from Geodynamics. This cannot be undone."/>
+                                </list>
+                            </field>
+                        </div>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+        <record id="view_project_task_type_form_inherit_geodynamics" model="ir.ui.view">
+            <field name="name">project.task.type.form.inherit.geodynamics</field>
+            <field name="model">project.task.type</field>
+            <field name="inherit_id" ref="project.task_type_edit"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="df_is_completion_stage"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,40 @@
+<!-- Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+     License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details. -->
+<odoo>
+    <data>
+        <record id="view_employee_form_geodynamics_tab" model="ir.ui.view">
+            <field name="name">employee.form.geodynamics.tab</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"></field>
+            <field name="arch" type="xml">
+                <notebook position="inside">
+                    <page string="Geodynamics">
+                        <group>
+                            <field name="df_geodynamics_id"/>
+                            <field name="df_timesheet_group_ids"
+                                       widget="many2many_tags"
+                                       groups="hr.group_hr_user"
+                                       context="{'default_employee_ids': [id]}"/>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+
+        <record id="view_employee_tree_geodynamics" model="ir.ui.view">
+            <field name="name">hr.employee.list.geodynamics</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//list" position="inside">
+                    <header>
+                        <button name="action_gd_export_employees" type="object"
+                                string="Export to Geodynamics"
+                                icon="fa-upload"
+                                groups="hr.group_hr_manager"/>
+                    </header>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

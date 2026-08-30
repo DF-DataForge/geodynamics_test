@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+     License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details. -->
+<odoo>
+    <data>
+        <!-- Inherit the existing user form view -->
+        <record id="view_users_form_inherit_geodynamics" model="ir.ui.view">
+            <field name="name">res.users.form.inherit.geodynamics</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <!-- Locate the notebook element to add a new page -->
+                <xpath expr="//notebook" position="inside">
+                    <!-- Define the new page -->
+                    <page string="Geodynamics">
+                        <group>
+                            <field name="df_geodynamics_id"/>
+                            <field name="df_task_create_action"/>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

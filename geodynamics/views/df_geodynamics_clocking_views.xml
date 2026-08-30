@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+     License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details. -->
+<odoo>
+    <record id="view_geodynamics_clocking_tree" model="ir.ui.view">
+        <field name="name">geodynamics.clocking.tree</field>
+        <field name="model">geodynamics.clocking</field>
+        <field name="arch" type="xml">
+            <list string="Geodynamics Clockings" decoration-warning="need_to_check==True">
+                <field name="external_id"/>
+                <field name="date_utc"/>
+                <field name="date_local"/>
+                <field name="stop_date_utc" optional="hide"/>
+                <field name="stop_date_local"  optional="hide"/>
+                <field name="woon_werk"/>
+                <field name="movement_time_minutes"/>
+                <field name="movement_time_hours"/>
+                <field name="movement_distance"/>
+                <field name="pause_hours" optional="hide"/>
+                <field name="job_number"/>
+                <field name="project_code"/>
+                <field name="need_to_check" optional="show"/>
+                <field name="type_label"/>
+                <field name="employee_id"/>
+                <field name="user_id_geodynamics"/>
+                <field name="vehicle_code"/>
+                <field name="project_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_geodynamics_clocking_form" model="ir.ui.view">
+        <field name="name">geodynamics.clocking.form</field>
+        <field name="model">geodynamics.clocking</field>
+        <field name="arch" type="xml">
+            <form string="Geodynamics Clocking">
+                <sheet>
+                    <group>
+                        <field name="external_id" readonly="1"/>
+                        <field name="date_utc"/>
+                        <field name="date_local"/>
+                        <field name="stop_date_utc" invisible="1" />
+                        <field name="stop_date_local" invisible="1"/>
+                        <field name="woon_werk"/>
+                        <field name="movement_time_minutes"/>
+                        <field name="movement_time_hours"/>
+                        <field name="movement_distance"/>
+                        <field name="pause_hours"/>
+                        <field name="type"/>
+                        <field name="type_label"/>
+                        <field name="job_number"/>
+                        <field name="is_manual"/>
+                        <field name="employee_id"/>
+                        <field name="user_id_geodynamics"/>
+                        <field name="vehicle_code"/>
+                        <field name="project_id"/>
+                    </group>
+                    <notebook>
+                        <page string="Location">
+                            <field name="location" widget="json"/>
+                        </page>
+                        <page string="User">
+                            <field name="user" widget="json"/>
+                        </page>
+                        <page string="Vehicle">
+                            <field name="vehicle" widget="json"/>
+                        </page>
+                        <page string="Raw">
+                            <field name="raw_payload" widget="json"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search view: allow filtering by date_local, date_utc, employee and external user id; provide Group By shortcuts -->
+    <record id="view_geodynamics_clocking_search" model="ir.ui.view">
+        <field name="name">geodynamics.clocking.search</field>
+        <field name="model">geodynamics.clocking</field>
+        <field name="arch" type="xml">
+            <search string="Search Geodynamics Clockings">
+                <field name="date_local"/>
+                <field name="date_utc"/>
+                <field name="employee_id"/>
+                <field name="user_id_geodynamics"/>
+                <field name="vehicle_code"/>
+                <newline/>
+                <!-- Default filter: yesterday (date_local for previous day) -->
+                <filter name="filter_date_local_yesterday" string="Yesterday"
+                        domain="[(('date_local','&gt;=', (context_today() - relativedelta(days=1)).strftime('%Y-%m-%d 00:00:00'))), (('date_local','&lt;=', (context_today() - relativedelta(days=1)).strftime('%Y-%m-%d 23:59:59')))]"/>
+                <group>
+                    <filter name="group_by_date_local" string="Date local" domain="[]" context="{'group_by':'date_local'}"/>
+                    <filter name="group_by_date_utc" string="Date UTC" domain="[]" context="{'group_by':'date_utc'}"/>
+                    <filter name="group_by_employee" string="Employee" domain="[]" context="{'group_by':'employee_id'}"/>
+                    <filter name="group_by_user" string="User ID" domain="[]" context="{'group_by':'user_id_geodynamics'}"/>
+                    <filter name="group_by_vehicle_code" string="Vehicle Code" domain="[]" context="{'group_by':'vehicle_code'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_geodynamics_clocking_graph" model="ir.ui.view">
+        <field name="name">geodynamics.clocking.graph</field>
+        <field name="model">geodynamics.clocking</field>
+        <field name="arch" type="xml">
+            <graph string="Clocking Analysis" type="bar">
+                <field name="employee_id"/>
+                <field name="movement_time_hours" type="measure"/>
+                <field name="movement_distance" type="measure"/>
+                <field name="pause_hours" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Pivot View -->
+    <record id="view_geodynamics_clocking_pivot" model="ir.ui.view">
+        <field name="name">geodynamics.clocking.pivot</field>
+        <field name="model">geodynamics.clocking</field>
+        <field name="arch" type="xml">
+            <pivot string="Clocking Pivot">
+                <field name="employee_id" type="row"/>
+                <field name="date_local" type="col" interval="week"/>
+                <field name="movement_time_hours" type="measure"/>
+                <field name="movement_distance" type="measure"/>
+                <field name="pause_hours" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Calendar View -->
+    <record id="view_geodynamics_clocking_calendar" model="ir.ui.view">
+        <field name="name">geodynamics.clocking.calendar</field>
+        <field name="model">geodynamics.clocking</field>
+        <field name="arch" type="xml">
+            <calendar string="Clockings" date_start="date_local" date_stop="stop_date_local"
+                      color="employee_id" event_limit="5">
+                <field name="employee_id"/>
+                <field name="type_label"/>
+                <field name="movement_time_hours"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="action_geodynamics_clocking" model="ir.actions.act_window">
+        <field name="name">Clockings</field>
+        <field name="res_model">geodynamics.clocking</field>
+        <field name="view_mode">list,form,graph,pivot,calendar</field>
+        <field name="view_id" ref="view_geodynamics_clocking_tree"/>
+        <field name="search_view_id" ref="view_geodynamics_clocking_search"/>
+        <field name="domain">[]</field>
+        <field name="context">{'search_default_filter_date_local_yesterday': 1, 'search_default_group_by_employee': 1}</field>
+    </record>
+
+    <!-- Clockings menu temporarily hidden; to be re-implemented later.
+    <menuitem id="menu_geodynamics_clockings" name="Clockings"
+              parent="geodynamics.menu_root" sequence="20"
+              action="action_geodynamics_clocking"/>
+    -->
+
+    <!-- Geodynamics root under Project config (parent of Synchronize Clockings / Clocking Errors) -->
+    <menuitem id="menu_geodynamics_root" name="Geodynamics" parent="project.menu_project_config" sequence="40"/>
+    <!-- Clockings menu under Project config temporarily hidden; to be re-implemented later.
+    <menuitem id="menu_geodynamics_clockings_config" name="Clockings" parent="menu_geodynamics_root" action="action_geodynamics_clocking"/>
+    -->
+</odoo>

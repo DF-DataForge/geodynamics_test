@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+     License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details. -->
+<odoo>
+    <data>
+        <!-- Inherit the existing task form view -->
+        <record id="view_task_form_inherit_geodynamics" model="ir.ui.view">
+            <field name="name">project.task.form.inherit.geodynamics</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.view_task_form2"/>
+            <field name="arch" type="xml">
+                 <xpath expr="//field[@name='personal_stage_type_id']" position="after">
+                    <field name="df_gd_planning_task_enabled" invisible="1"/>
+                    <button name="sendPlanningToDGdWn" type="object" class="btn-primary" string="Plan in Geodynamics" invisible="not df_gd_planning_task_enabled"/>
+                </xpath>
+                <xpath expr="//notebook" position="inside">
+                    <page string="Geodynamics" invisible="df_workmode != 'usermode' or not df_gd_planning_task_enabled">
+                        <!-- Add your custom fields or content here -->
+                        <group>
+                            <field name="df_geodynamics_poi_id" readonly="1"/>
+                            <field name="df_assignees_with_geodynamics_ids" widget="many2many_tags"/>
+                            <field name="df_workmode" invisible="1"/>
+                            <button name="sendPlanningToDGdWn" string="Zet planning Geodynamics" type="object" class="btn-primary"/>
+                            <button name="laadPostcalc" string="Laad post calculatie" type="object" class="btn-primary"/>
+                            <!-- New button inside first Geodynamics page -->
+                            <button name="fetchClockings" string="Fetch Clockings" type="object" class="btn-secondary"/>
+                        </group>
+                    </page>
+                    <page string="Geodynamics" invisible="not df_gd_planning_task_enabled">
+
+                        <div class="col-12">
+                            <group>
+                                <field name="df_employee_ids" widget="many2many_tags"
+                                       string="Employees to plan"
+                                       domain="[('df_geodynamics_id', '!=', False)]"
+                                       options="{'no_create': True}"/>
+                            </group>
+                            <div class="row">
+                                <p>Geodynamics POI Id:
+                                    <field name="df_geodynamics_poi_id" readonly="1"/>
+                                </p>
+                            </div>
+                            <field name="df_employees_without_geodynamics_ids_invisible" invisible="1"/>
+                            <div invisible="df_employees_without_geodynamics_ids_invisible">
+                                <p>Warning, the following employees have no Geodynamics Id and cannot be planned in Geodynamics:
+                                <field name="df_employees_without_geodynamics_ids" class="red-text" widget="many2many_tags"/>
+                                </p>
+                            </div>
+                            <field name="df_gd_planning_overlapped_ids_invisible" invisible="1"/>
+                            <div invisible="df_gd_planning_overlapped_ids_invisible">
+                                <p>Warning, the following plannings overlap with the current task's planning:
+                                <field name="df_gd_planning_overlapped_ids" class="red-text" widget="many2many_tags"/>
+                                </p>
+                            </div>
+                            <div class="col-12">
+                                <p>Geodynamics Plannings:</p>
+                                <p>
+                                    <field name="df_gd_planning_ids2" style="font-size:16px" class="col-6" mode="list">
+                                        <list create="false">
+                                            <field name="employee_id"/>
+                                            <field name="start_datetime"/>
+                                            <field name="end_datetime"/>
+                                            <button name="removePlanning" type="object" icon="fa-trash"
+                                                    title="Delete planning"
+                                                    confirm="Delete this planning? It will also be removed from Geodynamics. This cannot be undone."/>
+                                        </list>
+                                    </field>
+                                </p>
+                            </div>
+                            <div class="mt8">
+                                <button icon="fa-calculator" class="btn-secondary" name="laadPostcalc" string="Fetch Post-Calculation" type="object"/>
+                            </div>
+                        </div>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+          <template id="geodynamics_custom_assets" name="geodynamics assets">
+            <xpath expr="." position="inside">
+                <style>
+                    /* Custom red class for text */
+                    .red-text {
+                        color: red !important; /* Apply red text color */
+                    }
+
+                    /* Custom red class for background */
+                    .red-background {
+                        background-color: red;
+                        color: white; /* Optional: to make the text readable on red */
+                    }
+
+                    /* Style many2many_tags specifically */
+                    .red-text .o_tag {
+                        background-color: red; /* Red background for tags */
+                        color: white; /* White text inside tags for contrast */
+                    }
+                </style>
+            </xpath>
+        </template>
+
+        <record id="view_task_form_inherit_geodynamics_timesheets" model="ir.ui.view">
+            <field name="name">project.task.form.timesheet.inherit.geodynamics</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.view_task_form2"/>
+            <field name="arch" type="xml">
+                <!-- Locate the notebook element to add a new page -->
+                <xpath expr="//page[@name='page_timesheets']//field[@name='unit_amount']" position="before">
+                    <field name="df_start_time" optional="show"/>
+                    <field name="df_end_time" optional="show"/>
+                    <field name="df_gd_type" optional="show"/>
+                    <field name="df_gd_eventtype" optional="show"/>
+                    <field name="df_gd_start_location" optional="show"/>
+                    <field name="df_gd_stop_location" optional="show"/>
+                    <field name="df_gd_mileage" optional="show"/>
+                    <field name="df_gd_start_resource_id" optional="show"/>
+                    <field name="df_gd_stop_resource_id" optional="show"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_task_list_view_field_service" model="ir.ui.view">
+            <field name="name">project.task.list.view.field.service.geodynamics</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="industry_fsm.project_task_view_list_fsm"/>
+            <field name="arch" type="xml">
+                <!-- Locate the notebook element to add a new page -->
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="df_gd_planning_ids" optional="show" widget="many2many_tags"/>
+                    <field name="df_gd_planning_overlapped_ids" optional="show" widget="many2many_tags"/>
+                </xpath>
+                <xpath expr="//list" position="inside">
+                    <header>
+                        <button name="sendPlanningToDGdWn" type="object" string="Planning sturen naar Geodynamics"/>
+                        <button name="laadPostcalc" type="object" string="Haal nacalculatie op van Geodynamics"/>
+                        <!-- New fetch clockings list action -->
+                        <button name="fetchClockings" type="object" string="Fetch clockings"/>
+                    </header>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="field_service_list_view_geodynamics" model="ir.ui.view">
+            <field name="name">field.service.list.view.geodynamics</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.project_task_view_tree_main_base"/>
+            <field name="arch" type="xml">
+                <xpath expr="//list" position="inside">
+                    <header>
+                        <button name="sendPlanningToDGdWn" type="object" string="Planning sturen naar Geodynamics"/>
+                        <button name="laadPostcalc" type="object" string="Haal calculatie op van Geodynamics"/>
+                        <!-- New fetch clockings tree action -->
+                        <button name="fetchClockings" type="object" string="Fetch clockings"/>
+                    </header>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

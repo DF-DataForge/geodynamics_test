@@ -1,0 +1,54 @@
+<!-- Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+     License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details. -->
+<odoo>
+    <data>
+
+        <!-- Inherit the Contact form view (res.partner) -->
+        <record id="view_partner_form_inherit_geodynamics" model="ir.ui.view">
+            <field name="name">res.partner.form.inherit.geodynamics</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <!-- Add a new page under the notebook -->
+                <xpath expr="//notebook" position="inside">
+                    <page string="Geodynamics">
+                        <group>
+                            <group string="POI Integration">
+                                <field name="df_geodynamics_poi_id"/>
+                                <field name="df_geodynamics_poi_name" readonly="1"/>
+                                <field name="df_geodynamics_poi_type" readonly="1"/>
+                            </group>
+                            <group string="POI Sync">
+                                <field name="partner_latitude" readonly="1"/>
+                                <field name="partner_longitude" readonly="1"/>
+                                <field name="df_geodynamics_poi_last_sync" readonly="1"/>
+                            </group>
+                        </group>
+                        <div class="mt8" invisible="df_geodynamics_poi_id">
+                            <button icon="fa-cloud-upload" class="btn-primary" name="sync_poi_geodynamics"
+                                    string="Create in Geodynamics" type="object"/>
+                        </div>
+                        <div class="mt8" invisible="not df_geodynamics_poi_id">
+                            <button icon="fa-refresh" class="btn-secondary" name="sync_poi_geodynamics"
+                                    string="Update in Geodynamics" type="object"/>
+                        </div>
+                        <div class="mt8" invisible="not partner_latitude or not partner_longitude">
+                            <button icon="fa-map-marker" class="btn-link" name="action_open_google_maps"
+                                    string="View on Google Maps" type="object"/>
+                        </div>
+                        <div class="alert alert-danger mt16" role="alert"
+                             invisible="not df_geodynamics_error_message">
+                            <field name="df_geodynamics_error_message"/>
+                        </div>
+                        <notebook invisible="not df_geodynamics_poi_raw" groups="base.group_no_one">
+                            <page string="POI Raw Data">
+                                <field name="df_geodynamics_poi_raw" widget="json" readonly="1"/>
+                            </page>
+                        </notebook>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

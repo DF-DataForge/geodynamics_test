@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+     License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details. -->
+<odoo>
+    <!-- Extend Account Analytic Line List View -->
+    <record id="view_account_analytic_line_list_gd_costs" model="ir.ui.view">
+        <field name="name">account.analytic.line.list.gd.costs</field>
+        <field name="model">account.analytic.line</field>
+        <field name="active" eval="0"/>
+        <field name="inherit_id" ref="hr_timesheet.hr_timesheet_line_tree"/>
+        <field name="arch" type="xml">
+            <!-- Add cost fields after unit_amount -->
+            <field name="unit_amount" position="after">
+                <field name="df_gd_clocking_count" optional="hide"/>
+                <field name="df_gd_total_cost" optional="show" sum="Total GD Cost"/>
+                <field name="df_gd_sales_price" optional="show" sum="Total GD Sales"/>
+                <field name="df_gd_margin" optional="show" sum="Total GD Margin"
+                       decoration-success="df_gd_margin > 0"
+                       decoration-danger="df_gd_margin &lt; 0"/>
+                <field name="df_gd_margin_percentage" optional="hide"/>
+                <button name="action_view_geodynamics_clockings"
+                        type="object"
+                        icon="fa-clock-o"
+                        string="Clockings"
+                        context="{'from_timesheet_tree': True}"
+                        invisible="'df_gd_clocking_count' == 0"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="timesheet_view_tree_user_inherit" model="ir.ui.view">
+        <field name="name">account.analytic.line.view.list.with.user.inherit</field>
+        <field name="model">account.analytic.line</field>
+        <field name="inherit_id" ref="hr_timesheet.timesheet_view_tree_user"/>
+        <field name="arch" type="xml">
+            <!-- Add timesheet type and start - end time -->
+            <xpath expr="//field[@name='unit_amount']" position="after">
+                <field name="df_timesheet_type" column_invisible="1"/>
+                <field name="df_start_time" widget="daterange"
+                       options="{'condensed': true, 'end_date_field': 'df_end_time', 'show_seconds': false, 'always_range': true}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="timesheet_view_grid_by_employee_editable_manager_inherit" model="ir.ui.view">
+        <field name="name">account.analytic.line.grid.employee.manager.inherit</field>
+        <field name="model">account.analytic.line</field>
+        <field name="inherit_id" ref="timesheet_grid.timesheet_view_grid_by_employee_editable_manager"/>
+        <field name="arch" type="xml">
+            <!-- group on timesheet type -->
+            <xpath expr="//field[@name='task_id']" position="after">
+                <field name="df_timesheet_type" type="row"/>
+                <field name="df_start_time" type="row" invisible="1"/>
+                <field name="df_end_time" type="row" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend Account Analytic Line Form View -->
+    <record id="view_account_analytic_line_form_gd_costs" model="ir.ui.view">
+        <field name="name">account.analytic.line.form.gd.costs</field>
+        <field name="model">account.analytic.line</field>
+        <field name="active" eval="0"/>
+        <field name="inherit_id" ref="hr_timesheet.hr_timesheet_line_form"/>
+        <field name="arch" type="xml">
+            <!-- Add button to view clockings -->
+            <header position="inside">
+                <button name="action_view_geodynamics_clockings"
+                        type="object"
+                        string="View Clockings"
+                        class="btn-secondary"
+                        icon="fa-clock-o"
+                        invisible="'df_gd_clocking_count' == 0"/>
+            </header>
+
+            <!-- Add Geodynamics Costs section after the name field -->
+            <field name="name" position="after">
+                <notebook>
+                    <page string="Geodynamics Costs" name="gd_costs"
+                         invisible="'df_gd_clocking_count' == 0">
+                        <group>
+                            <group string="Cost Breakdown">
+                                <field name="df_gd_clocking_count" readonly="1"/>
+                                <field name="df_gd_purchase_cost" readonly="1"/>
+                                <field name="df_gd_employer_cost" readonly="1"/>
+                                <field name="df_gd_backoffice_cost" readonly="1"/>
+                                <separator string=""/>
+                                <field name="df_gd_total_cost" readonly="1" class="oe_subtotal_footer_separator"/>
+                            </group>
+                            <group string="Sales &amp; Margin">
+                                <field name="df_gd_sales_price" readonly="1"/>
+                                <separator string=""/>
+                                <field name="df_gd_margin" readonly="1" class="oe_subtotal_footer_separator"
+                                       decoration-success="df_gd_margin > 0"
+                                       decoration-danger="df_gd_margin &lt; 0"/>
+                                <field name="df_gd_margin_percentage" readonly="1" widget="percentage"/>
+                            </group>
+                        </group>
+
+                        <!-- Linked Clockings -->
+                        <group string="Linked Clockings">
+                            <field name="df_geodynamics_clocking_ids" nolabel="1"/>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </field>
+    </record>
+</odoo>
+

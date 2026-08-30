@@ -1,0 +1,140 @@
+<!-- Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+     License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details. -->
+<odoo>
+    <!-- Form View -->
+    <record id="view_df_geodynamics_planning_form" model="ir.ui.view">
+        <field name="name">df.geodynamics.planning.form</field>
+        <field name="model">df.geodynamics.planning</field>
+        <field name="arch" type="xml">
+            <form string="Geodynamics Planning">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="start_datetime"/>
+                            <field name="end_datetime"/>
+                            <field name="id_geodynamics"/>
+                            <field name="activitynumber"/>
+                        </group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="user_id"/>
+                            <field name="task_id"/>
+                            <field name="project_id"/>
+                            <field name="description"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="view_df_geodynamics_planning_tree" model="ir.ui.view">
+        <field name="name">df.geodynamics.planning.list</field>
+        <field name="model">df.geodynamics.planning</field>
+        <field name="arch" type="xml">
+            <list>
+                <header>
+                    <button name="removePlanning" type="object" string="Remove Planning from Geodynamics"/>
+                </header>
+                <field name="create_date"/>
+                <field name="start_datetime"/>
+                <field name="end_datetime"/>
+                <field name="employee_id"/>
+                <field name="task_id"/>
+                <field name="project_id" optional="show"/>
+                <field name="activitynumber"/>
+                <field name="id_geodynamics" optional="hide"/>
+                <field name="user_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Gantt View (requires web_gantt Enterprise module) -->
+    <record id="view_df_geodynamics_planning_gantt" model="ir.ui.view">
+        <field name="name">df.geodynamics.planning.gantt</field>
+        <field name="model">df.geodynamics.planning</field>
+        <field name="arch" type="xml">
+            <gantt string="Planning Gantt"
+                   date_start="start_datetime"
+                   date_stop="end_datetime"
+                   default_group_by="employee_id"
+                   color="task_id"
+                   precision="{'day': 'hour:quarter', 'week': 'day:half', 'month': 'day:full'}"
+                   display_unavailability="1">
+                <field name="employee_id"/>
+                <field name="task_id"/>
+                <field name="activitynumber"/>
+            </gantt>
+        </field>
+    </record>
+
+    <!-- Calendar View -->
+    <record id="view_df_geodynamics_planning_calendar" model="ir.ui.view">
+        <field name="name">df.geodynamics.planning.calendar</field>
+        <field name="model">df.geodynamics.planning</field>
+        <field name="arch" type="xml">
+            <calendar string="Planning Calendar"
+                      date_start="start_datetime"
+                      date_stop="end_datetime"
+                      color="employee_id"
+                      event_limit="5"
+                      quick_create="0">
+                <field name="employee_id"/>
+                <field name="task_id"/>
+                <field name="project_id"/>
+                <field name="activitynumber"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_df_geodynamics_planning_search" model="ir.ui.view">
+        <field name="name">df.geodynamics.planning.search</field>
+        <field name="model">df.geodynamics.planning</field>
+        <field name="arch" type="xml">
+            <search string="Search Planning">
+                <field name="employee_id"/>
+                <field name="task_id"/>
+                <field name="project_id"/>
+                <field name="activitynumber"/>
+                <filter name="this_week" string="This Week"
+                        domain="[('start_datetime','&gt;=', (context_today() - relativedelta(weekday=0)).strftime('%Y-%m-%d 00:00:00')),
+                                 ('start_datetime','&lt;', (context_today() + relativedelta(weeks=1, weekday=0)).strftime('%Y-%m-%d 00:00:00'))]"/>
+                <filter name="next_week" string="Next Week"
+                        domain="[('start_datetime','&gt;=', (context_today() + relativedelta(weeks=1, weekday=0)).strftime('%Y-%m-%d 00:00:00')),
+                                 ('start_datetime','&lt;', (context_today() + relativedelta(weeks=2, weekday=0)).strftime('%Y-%m-%d 00:00:00'))]"/>
+                <separator/>
+                <group>
+                    <filter name="group_employee" string="Employee" context="{'group_by':'employee_id'}"/>
+                    <filter name="group_project" string="Project" context="{'group_by':'project_id'}"/>
+                    <filter name="group_task" string="Task" context="{'group_by':'task_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_df_geodynamics_planning_graph" model="ir.ui.view">
+        <field name="name">df.geodynamics.planning.graph</field>
+        <field name="model">df.geodynamics.planning</field>
+        <field name="arch" type="xml">
+            <graph string="Planning Analysis" type="bar">
+                <field name="employee_id"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_df_geodynamics" model="ir.actions.act_window">
+        <field name="name">Planning</field>
+        <field name="res_model">df.geodynamics.planning</field>
+        <field name="view_mode">list,gantt,calendar,graph,form</field>
+        <field name="search_view_id" ref="view_df_geodynamics_planning_search"/>
+        <field name="context">{}</field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem name="Planning" id="geodynamics.lst_planningen" parent="geodynamics.menu_root"
+              action="action_df_geodynamics" sequence="10"/>
+</odoo>

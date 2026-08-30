@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+     License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details. -->
+<odoo>
+    <data>
+        <record id="timesheets_analysis_report_list_geodynamics_inherit" model="ir.ui.view">
+            <field name="name">timesheets.analysis.report.list.geodynamics.inherit</field>
+            <field name="model">timesheets.analysis.report</field>
+            <field name="inherit_id" ref="hr_timesheet.timesheets_analysis_report_list"/>
+            <field name="arch" type="xml">
+                <xpath expr="/list/field[@name='unit_amount']" position="after">
+                    <field name="df_start_time" optional="hide"/>
+                    <field name="df_end_time" optional="hide"/>
+                    <button type="object" name="action_open_analytic_line" string="Open Line" icon="fa-external-link"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

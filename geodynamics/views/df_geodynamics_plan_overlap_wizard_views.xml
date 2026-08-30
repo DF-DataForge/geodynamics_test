@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+     License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details. -->
+<odoo>
+    <record id="view_df_geodynamics_plan_overlap_wizard_form" model="ir.ui.view">
+        <field name="name">df.geodynamics.plan.overlap.wizard.form</field>
+        <field name="model">df.geodynamics.plan.overlap.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Overlappende planningen">
+                <field name="task_ids" invisible="1"/>
+                <group>
+                    <div colspan="2">
+                        <p>De planning van deze taak overlapt met de volgende bestaande planningen:</p>
+                        <field name="overlap_planning_ids" widget="many2many_tags" nolabel="1" readonly="1"/>
+                    </div>
+                </group>
+                <group>
+                    <field name="action" widget="radio" nolabel="1"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Bevestigen" type="object" class="btn-primary"/>
+                    <button string="Annuleren" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

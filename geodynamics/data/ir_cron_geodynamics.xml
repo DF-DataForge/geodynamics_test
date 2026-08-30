@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+     License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details. -->
+<odoo>
+    <!-- Cron to fetch previous day's clockings daily at 07:00 -->
+    <record id="ir_cron_geodynamics_fetch_yesterday_clockings" model="ir.cron">
+        <field name="name">Geodynamics: fetch yesterday clockings</field>
+        <field name="model_id" ref="model_geodynamics_cron"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_fetch_yesterday_clockings()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <!-- Set nextcall to today at 07:00 so scheduling starts at that time; adjust as needed -->
+        <field name="nextcall">2026-04-01 07:00:00</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Cron to auto-sync leaves from Geodynamics daily (only runs when 'Leave Sync' is enabled in Settings) -->
+    <record id="ir_cron_geodynamics_auto_sync_leaves" model="ir.cron">
+        <field name="name">Geodynamics: auto-sync leaves</field>
+        <field name="model_id" ref="base.model_res_config_settings"/>
+        <field name="state">code</field>
+        <field name="code">model.gd_cron_sync_leaves()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall">2026-04-01 05:00:00</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Cron to auto-export task plannings not yet in Geodynamics (only runs when 'Planning Sync' is enabled in Settings) -->
+    <record id="ir_cron_geodynamics_auto_sync_planning" model="ir.cron">
+        <field name="name">Geodynamics: auto-sync planning</field>
+        <field name="model_id" ref="model_geodynamics_cron"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_auto_sync_planning()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Cron to sync vehicle odometers (km) from Geodynamics daily (only runs when 'Odometer Sync' is enabled in Settings) -->
+    <record id="ir_cron_geodynamics_sync_vehicle_odometers" model="ir.cron">
+        <field name="name">Geodynamics: sync vehicle odometers</field>
+        <field name="model_id" ref="fleet.model_fleet_vehicle"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_gd_sync_odometer()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall">2026-04-01 06:00:00</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Cron to clean up old API logs weekly -->
+    <record id="ir_cron_geodynamics_api_log_cleanup" model="ir.cron">
+        <field name="name">Geodynamics: clean up old API logs</field>
+        <field name="model_id" ref="model_df_geodynamics_api_log"/>
+        <field name="state">code</field>
+        <field name="code">model.cleanup_old_logs()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">weeks</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

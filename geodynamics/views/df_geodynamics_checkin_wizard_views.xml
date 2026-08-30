@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+     License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details. -->
+<odoo>
+    <record id="view_df_geodynamics_checkin_wizard_form" model="ir.ui.view">
+        <field name="name">df.geodynamics.checkin.wizard.form</field>
+        <field name="model">df.geodynamics.checkin.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Fetch Checkin at Work Data">
+                <group>
+                    <field name="df_date_from"/>
+                    <field name="df_date_to"/>
+                    <field name="df_employee_ids" widget="many2many_tags"/>
+                </group>
+                <footer>
+                    <button name="action_fetch" string="Fetch Check-ins" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_df_geodynamics_checkin_wizard" model="ir.actions.act_window">
+        <field name="name">Fetch Checkin at Work</field>
+        <field name="res_model">df.geodynamics.checkin.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

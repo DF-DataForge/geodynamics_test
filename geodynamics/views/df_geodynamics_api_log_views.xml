@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+     License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details. -->
+<odoo>
+    <record id="view_df_geodynamics_api_log_tree" model="ir.ui.view">
+        <field name="name">df.geodynamics.api.log.tree</field>
+        <field name="model">df.geodynamics.api.log</field>
+        <field name="arch" type="xml">
+            <list string="API / Error Logs" decoration-success="df_success==True" decoration-danger="df_success==False" default_order="create_date desc">
+                <header>
+                    <button name="action_export_xml" type="object" string="Export to XML" icon="fa-download"/>
+                </header>
+                <field name="create_date"/>
+                <field name="df_method"/>
+                <field name="df_name"/>
+                <field name="df_url" optional="hide"/>
+                <field name="df_response_status"/>
+                <field name="df_success"/>
+                <field name="df_duration_ms"/>
+                <field name="df_user_id"/>
+                <field name="df_error_message" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_df_geodynamics_api_log_form" model="ir.ui.view">
+        <field name="name">df.geodynamics.api.log.form</field>
+        <field name="model">df.geodynamics.api.log</field>
+        <field name="arch" type="xml">
+            <form string="API Log Entry" create="0" edit="0">
+                <header>
+                    <button name="action_view_json" type="object" string="Bekijk JSON (geformatteerd)" icon="fa-code"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="create_date"/>
+                            <field name="df_method"/>
+                            <field name="df_name"/>
+                            <field name="df_url" widget="CopyClipboardChar"/>
+                        </group>
+                        <group>
+                            <field name="df_response_status"/>
+                            <field name="df_success"/>
+                            <field name="df_duration_ms"/>
+                            <field name="df_user_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Request Payload">
+                            <field name="df_request_payload_text" widget="ace" options="{'mode': 'json'}" nolabel="1" readonly="1"/>
+                        </page>
+                        <page string="Response Payload">
+                            <field name="df_response_payload_text" widget="ace" options="{'mode': 'json'}" nolabel="1" readonly="1"/>
+                        </page>
+                        <page string="Error" invisible="not df_error_message">
+                            <field name="df_error_message" widget="CopyClipboardText" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_df_geodynamics_api_log_search" model="ir.ui.view">
+        <field name="name">df.geodynamics.api.log.search</field>
+        <field name="model">df.geodynamics.api.log</field>
+        <field name="arch" type="xml">
+            <search string="Search API Logs">
+                <field name="df_name"/>
+                <field name="df_method"/>
+                <field name="df_url"/>
+                <filter name="success" string="Success" domain="[('df_success', '=', True)]"/>
+                <filter name="errors" string="Errors" domain="[('df_success', '=', False), ('df_method', '!=', 'LOG')]"/>
+                <filter name="verbose" string="Verbose Logs" domain="[('df_method', '=', 'LOG')]"/>
+                <filter name="today" string="Today"
+                        domain="[('create_date', '>=', context_today().strftime('%Y-%m-%d'))]"/>
+                <group>
+                    <filter name="group_by_method" string="Method" context="{'group_by':'df_method'}"/>
+                    <filter name="group_by_endpoint" string="Endpoint" context="{'group_by':'df_name'}"/>
+                    <filter name="group_by_day" string="Day" context="{'group_by':'create_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_df_geodynamics_api_log" model="ir.actions.act_window">
+        <field name="name">API / Error Logs</field>
+        <field name="res_model">df.geodynamics.api.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_df_geodynamics_api_log_search"/>
+        <field name="context">{}</field>
+    </record>
+
+    <menuitem id="menu_df_geodynamics_api_log" name="API / Error Logs"
+              parent="geodynamics.menu_root" sequence="90"
+              action="action_df_geodynamics_api_log"
+              groups="base.group_system"/>
+</odoo>

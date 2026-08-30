@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2025-2026 Data Forge (https://www.data-forge.be)
+     License OPL-1 (Odoo Proprietary License v1.0) - See LICENSE file for full details. -->
+<odoo>
+    <record id="view_df_geodynamics_tracking_tree" model="ir.ui.view">
+        <field name="name">df.geodynamics.tracking.tree</field>
+        <field name="model">df.geodynamics.tracking</field>
+        <field name="arch" type="xml">
+            <list string="Tracking Records">
+                <field name="df_employee_id"/>
+                <field name="df_timestamp"/>
+                <field name="df_date"/>
+                <field name="df_latitude"/>
+                <field name="df_longitude"/>
+                <field name="df_speed"/>
+                <field name="df_address"/>
+                <field name="df_status"/>
+                <field name="df_distance_km"/>
+                <field name="df_vehicle_id" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_df_geodynamics_tracking_form" model="ir.ui.view">
+        <field name="name">df.geodynamics.tracking.form</field>
+        <field name="model">df.geodynamics.tracking</field>
+        <field name="arch" type="xml">
+            <form string="Tracking Record">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="df_employee_id"/>
+                            <field name="df_vehicle_id"/>
+                            <field name="df_timestamp"/>
+                            <field name="df_date"/>
+                        </group>
+                        <group>
+                            <field name="df_latitude"/>
+                            <field name="df_longitude"/>
+                            <field name="df_speed"/>
+                            <field name="df_distance_km"/>
+                            <field name="df_address"/>
+                            <field name="df_status"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Raw Data">
+                            <field name="df_raw_payload" widget="json"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_df_geodynamics_tracking_search" model="ir.ui.view">
+        <field name="name">df.geodynamics.tracking.search</field>
+        <field name="model">df.geodynamics.tracking</field>
+        <field name="arch" type="xml">
+            <search string="Search Tracking">
+                <field name="df_employee_id"/>
+                <field name="df_date"/>
+                <field name="df_status"/>
+                <filter name="filter_today" string="Today"
+                        domain="[('df_date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <group>
+                    <filter name="group_by_employee" string="Employee" context="{'group_by':'df_employee_id'}"/>
+                    <filter name="group_by_date" string="Date" context="{'group_by':'df_date'}"/>
+                    <filter name="group_by_status" string="Status" context="{'group_by':'df_status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_df_geodynamics_tracking_graph" model="ir.ui.view">
+        <field name="name">df.geodynamics.tracking.graph</field>
+        <field name="model">df.geodynamics.tracking</field>
+        <field name="arch" type="xml">
+            <graph string="Tracking Analysis" type="bar">
+                <field name="df_employee_id"/>
+                <field name="df_distance_km" type="measure"/>
+                <field name="df_speed" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_df_geodynamics_tracking" model="ir.actions.act_window">
+        <field name="name">Tracking</field>
+        <field name="res_model">df.geodynamics.tracking</field>
+        <field name="view_mode">list,graph,form</field>
+        <field name="context">{'search_default_filter_today': 1}</field>
+    </record>
+
+    <!-- Tracking menu temporarily hidden; to be re-implemented later.
+    <menuitem id="menu_df_geodynamics_tracking" name="Tracking"
+              parent="geodynamics.menu_root" sequence="50"
+              action="action_df_geodynamics_tracking"/>
+    -->
+
+</odoo>
