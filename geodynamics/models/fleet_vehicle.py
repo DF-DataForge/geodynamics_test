@@ -20,6 +20,22 @@ GD_RUNNING_HOURS_KEYS = (
     'OperatingHours', 'EngineHours', 'Hours', 'Draaiuren',
 )
 
+# Candidate names for the counters returned by POST /api/v1/vehiclecounters
+# (the 'Voertuig tellers' list in Geodynamics). Unlike the payload keys above
+# these are free text chosen per Geodynamics instance and are locale-dependent,
+# so they are matched case-insensitively. Override per database with the
+# 'geodynamics.counter_name_km' / 'geodynamics.counter_name_hours' config
+# parameters (comma-separated) when an instance uses its own naming.
+GD_COUNTER_KM_NAMES = (
+    'kilometers', 'kilometer', 'km', 'kilometerstand', 'kilometrage',
+    'mileage', 'odometer', 'afstand', 'distance',
+)
+GD_COUNTER_HOURS_NAMES = (
+    'draaiuren', 'draaiuur', 'motoruren', 'bedrijfsuren', 'uren',
+    'running hours', 'runninghours', 'operating hours', 'engine hours',
+    'hours', 'heures', 'heures moteur',
+)
+
 
 class FleetVehicleGd(models.Model):
     _inherit = 'fleet.vehicle'
@@ -91,6 +107,47 @@ class FleetVehicleGd(models.Model):
             return None
 
         return _from_dict(payload)
+
+    @api.model
+    def _gd_counter_names(self, param, defaults):
+        """Candidate counter names for `param`, overridable per database."""
+        raw = self.env['ir.config_parameter'].sudo().get_param(param)
+        if raw:
+            names = tuple(n.strip().lower() for n in raw.split(',') if n.strip())
+            if names:
+                return names
+        return defaults
+
+    @api.model
+    def _gd_match_counter(self, counters, names):
+        """Return the value of the first counter whose name matches `names`.
+
+        Counter names come straight from the Geodynamics configuration
+        ('Kilometers', 'Draaiuren', ...), so matching is case-insensitive:
+        an exact name match wins, a substring match ('Draaiuren motor') is the
+        fallback, and default template counters win over ad-hoc ones.
+
+        Returns float or None.
+        """
+        exact, partial = [], []
+        for counter in counters or []:
+            if not isinstance(counter, dict):
+                continue
+            name = str(counter.get('CounterName') or '').strip().lower()
+            value = counter.get('CounterValue')
+            if not name or isinstance(value, bool) or not isinstance(value, (int, float)):
+                continue
+            if name in names:
+                exact.append(counter)
+            elif any(candidate in name for candidate in names):
+                partial.append(counter)
+        for bucket in (exact, partial):
+            if not bucket:
+                continue
+            # A default template counter is the one Geodynamics itself shows first.
+            bucket.sort(key=lambda c: not c.get('IsDefault'))
+            return float(bucket[0]['CounterValue'])
+        return None
 
     def _gd_log_odometer(self, km_value):
         """Log an odometer value (given in km) on fleet.vehicle.odometer.
@@ -196,19 +253,41 @@ class FleetVehicleGd(models.Model):
             return {'km': km, 'hours': abs_hours, 'hours_absolute': True, 'ok': True}
         return {'km': km, 'hours': driven_hours or None, 'hours_absolute': False, 'ok': True}
 
-    def _gd_sync_odometer(self, handler):
+    def _gd_sync_odometer(self, handler, diagnostics=None):
         """Sync odometer (km) and running hours from Geodynamics for the
         vehicles in `self` that are linked via df_geodynamics_id.
 
-        Primary source: a total km / running-hours counter in the vehicle
-        payload of GET /api/v1/vehicle (stored in df_geodynamics_raw).
-        Fallback: incremental MileageDriven from GET /api/v1/location/status.
+        Sources, in order:
+        1. The vehicle counters ('Voertuig tellers') from
+           POST /api/v1/vehiclecounters — the same totals Geodynamics shows.
+        2. A total km / running-hours counter in the vehicle payload of
+           GET /api/v1/vehicle (stored in df_geodynamics_raw).
+        3. Incremental MileageDriven from GET /api/v1/location/status.
+
+        `diagnostics` is an optional dict filled with why the vehicle counters did
+        not yield a value, so the caller can show it instead of only logging it.
 
         Returns (logged, skipped, fallback_used).
         """
+        if diagnostics is None:
+            diagnostics = {}
         vehicles = self.filtered('df_geodynamics_id')
         if not vehicles:
             return 0, 0, 0
+
+        # 1. Vehicle counters: the totals Geodynamics itself shows under
+        # 'Voertuig tellers'. One call covers the whole selection.
+        counter_map = {}
+        counters_result = handler.getVehicleCounters(vehicles.mapped('df_geodynamics_id'))
+        if counters_result.get('Error'):
+            _logger.warning('[Geodynamics] Odometer sync: getVehicleCounters failed (%s), '
+                            'falling back to the vehicle payload and location/status',
+                            counters_result['Error'])
+            diagnostics['counter_error'] = counters_result['Error']
+        else:
+            counter_map = counters_result.get('Data') or {}
+        km_names = self._gd_counter_names('geodynamics.counter_name_km', GD_COUNTER_KM_NAMES)
+        hour_names = self._gd_counter_names('geodynamics.counter_name_hours', GD_COUNTER_HOURS_NAMES)
 
         gd_map = {}
         result = handler.getVehicles()
@@ -223,16 +302,36 @@ class FleetVehicleGd(models.Model):
             _logger.warning('[Geodynamics] Odometer sync: getVehicles failed (%s), '
                             'falling back to location/status only', result.get('Error'))
 
-        logged = skipped = fallback_used = 0
+        logged = skipped = fallback_used = counters_used = 0
         for veh in vehicles:
             now = fields.Datetime.now()
             km = None
             hours = None
+
+            counters = counter_map.get(veh.df_geodynamics_id) or []
+            if counters:
+                km = self._gd_match_counter(counters, km_names)
+                hours = self._gd_match_counter(counters, hour_names)
+                if km is None:
+                    names = [c.get('CounterName') for c in counters]
+                    _logger.info('[Geodynamics] Odometer sync %s: no km counter among the vehicle '
+                                 'counters; available names=%s', veh.name, names)
+                    diagnostics.setdefault('unmatched', []).append((veh.name, names))
+                else:
+                    counters_used += 1
+            elif 'counter_error' not in diagnostics:
+                # The call succeeded but Geodynamics returned no counters for this vehicle.
+                _logger.info('[Geodynamics] Odometer sync %s: Geodynamics returned no vehicle '
+                             'counters (gd_id=%s)', veh.name, veh.df_geodynamics_id)
+                diagnostics.setdefault('no_counters', []).append(veh.name)
+
             payload = gd_map.get(veh.df_geodynamics_id)
             if payload:
                 veh.write({'df_geodynamics_raw': payload, 'df_geodynamics_last_sync': now})
-                km = self._gd_extract_counter(payload, GD_TOTAL_KM_KEYS)
-                hours = self._gd_extract_counter(payload, GD_RUNNING_HOURS_KEYS)
+                if km is None:
+                    km = self._gd_extract_counter(payload, GD_TOTAL_KM_KEYS)
+                if hours is None:
+                    hours = self._gd_extract_counter(payload, GD_RUNNING_HOURS_KEYS)
                 if km is None:
                     nested = {k: sorted(v.keys()) for k, v in payload.items() if isinstance(v, dict)}
                     _logger.info('[Geodynamics] Odometer sync %s: no total km counter in vehicle payload; '
@@ -266,8 +365,9 @@ class FleetVehicleGd(models.Model):
             else:
                 skipped += 1
 
-        _logger.info('[Geodynamics] Odometer sync complete: %d logged, %d skipped, %d via location/status fallback',
-                     logged, skipped, fallback_used)
+        _logger.info('[Geodynamics] Odometer sync complete: %d logged, %d skipped, '
+                     '%d from vehicle counters, %d via location/status fallback',
+                     logged, skipped, counters_used, fallback_used)
         return logged, skipped, fallback_used
 
     def action_gd_sync_odometer(self):
@@ -283,11 +383,30 @@ class FleetVehicleGd(models.Model):
             return self._gd_notify(
                 _('None of the selected vehicles are linked to Geodynamics (missing Geodynamics ID).'),
                 kind='warning')
-        logged, skipped, fallback_used = linked._gd_sync_odometer(handler)
-        return self._gd_notify(
-            _('Odometer sync: %d vehicle(s) updated, %d unchanged (%d computed from trip data).')
-            % (logged, skipped, fallback_used),
-            title=_('Geodynamics Odometer Sync'))
+        diagnostics = {}
+        logged, skipped, fallback_used = linked._gd_sync_odometer(handler, diagnostics)
+        message = _('Odometer sync: %d vehicle(s) updated, %d unchanged (%d computed from trip data).') \
+            % (logged, skipped, fallback_used)
+
+        # Without this the notification looks identical whether the counters were
+        # read fine or the call was rejected, which makes the sync impossible to
+        # diagnose from the interface.
+        details = []
+        if diagnostics.get('counter_error'):
+            details.append(_('Vehicle counters could not be read: %s') % diagnostics['counter_error'])
+        for name, counter_names in diagnostics.get('unmatched', []):
+            details.append(_('%s: no kilometre counter matched. Counters in Geodynamics: %s')
+                           % (name, ', '.join(str(n) for n in counter_names) or _('(none)')))
+        if diagnostics.get('no_counters'):
+            details.append(_('Geodynamics returned no counters for: %s')
+                           % ', '.join(diagnostics['no_counters']))
+        if details:
+            message = '%s\n\n%s' % (message, '\n'.join(details))
+
+        result = self._gd_notify(message, kind='warning' if details else 'success',
+                                 title=_('Geodynamics Odometer Sync'))
+        result['params']['sticky'] = bool(details)
+        return result
 
     def action_gd_probe_counters(self):
         """Diagnostic: probe candidate Geodynamics endpoints for total km /

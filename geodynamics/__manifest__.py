@@ -11,14 +11,14 @@ Geodynamics module integrates Odoo with the IntelliTracer API for GPS tracking,
 fleet management, employee planning, time registration, and construction site
 check-in (Checkinatwork / CIAW).
 
-Last build date: 2026-08-31 12:00:00
+Last build date: 2026-08-31 21:00:00
     """,
 
     'author': "Data Forge",
     'website': "https://www.data-forge.be",
 
     'category': 'Services/Field Service',
-    'version': '19.0.0.0.4',
+    'version': '19.0.0.0.5',
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'hr', 'project', 'industry_fsm', 'account', 'hr_timesheet', 'web_gantt', 'fleet', 'hr_holidays', 'planning'],

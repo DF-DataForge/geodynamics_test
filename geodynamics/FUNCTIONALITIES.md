@@ -92,6 +92,8 @@ The module extends several core Odoo models: `hr.employee`, `res.users`, `res.pa
 | `geodynamics.woon_werk_vehicle_codes` | `geodynamics_woon_werk_vehicle_codes` | Char | Comma-separated vehicle codes for commute (woon-werk) detection. Example: `CODE1,CODE2,CODE3`. Empty means all vehicles are considered. |
 | `geodynamics.auto_sync_odometer` | `df_geodynamics_auto_sync_odometer` | Boolean | Enable the daily cron that logs vehicle kilometers from Geodynamics into `fleet.vehicle.odometer`. Default: `False` |
 | `geodynamics.odometer_days_back` | `df_geodynamics_odometer_days_back` | Integer | For vehicles without any odometer log, how many days of location-status trip data the first sync fetches. Default: `30` |
+| `geodynamics.counter_name_km` | *(no settings field)* | Char | Comma-separated counter names to read the odometer from, when the Geodynamics instance does not use a recognised name. Example: `Stand teller,Totaal KM`. Empty means the built-in NL/EN/FR candidates (`Kilometers`, `Mileage`, `Odometer`, …) |
+| `geodynamics.counter_name_hours` | *(no settings field)* | Char | Same, for the running-hours counter. Empty means the built-in candidates (`Draaiuren`, `Running hours`, `Motoruren`, …) |
 
 ### Settings Action Buttons
 
@@ -840,6 +842,7 @@ GeodynamicsHandler(gd_login, gd_password, gd_company, environ)
 | `getLocationsByResourcesAndDate(ids, day)` | POST | `/api/v1/location/position` | Fetch positions for resources |
 | `getLocationStatus(resourceId, from, to)` | GET | `/api/v1/location/status` | Fetch location status timeline |
 | `getResourceMileage(resourceId, from, to)` | GET | `/api/v1/location/status` | Sum `MileageDriven` km + driving hours from status Bars (30-day chunks) |
+| `getVehicleCounters(vehicleIds, defaultsOnly=False)` | POST | `/api/v1/vehiclecounters` | Current vehicle counters (the "Voertuig tellers" list: `Kilometers`, `Draaiuren`, …) for one or more vehicles, chunked per 100. Requires the `Api: vehicle counters` privilege |
 
 ### Planning Methods
 
@@ -1000,11 +1003,32 @@ project.project
 Logs vehicle kilometers from Geodynamics into the standard Odoo fleet odometer:
 
 1. For each `fleet.vehicle` linked via `df_geodynamics_id`:
-2. Fetch `GET /api/v1/vehicle` and try to read a **total km counter** from the raw payload (candidate keys: `Mileage`, `Odometer`, `Kilometers`, … — checked top-level and one nested dict deep); running hours (`RunningHours`, `OperatingHours`, …) go to `df_gd_running_hours`
-3. **Fallback** when no counter exists in the payload: `getResourceMileage()` reads `location/status` Bars since the last sync (`df_gd_odometer_last_sync`). Absolute odometer counters on the Bars (`MileageStop`, `MileageStart`, `Odometer`, …) win — they match the vehicle total shown in Geodynamics; otherwise the summed `MileageDriven` is added to the last logged odometer value
-4. A `fleet.vehicle.odometer` record is created for today (updated in place on re-sync the same day; values are converted to miles when the vehicle's odometer unit is miles; a value lower than the last log is never written; **zero-value records are ignored entirely** — a manual `0,00` entry neither blocks the sync nor counts as a starting value)
+2. **Primary source — vehicle counters.** `getVehicleCounters()` calls `POST /api/v1/vehiclecounters` once for the whole selection and returns, per vehicle, the counters Geodynamics shows under **Voertuig tellers**. The km counter goes to the odometer, the hours counter to `df_gd_running_hours`
+3. **Fallback 1** — `GET /api/v1/vehicle`: read a total km counter from the raw payload (candidate keys: `Mileage`, `Odometer`, `Kilometers`, … — checked top-level and one nested dict deep); running hours (`RunningHours`, `OperatingHours`, …) go to `df_gd_running_hours`. Only fills in what the counters did not provide
+4. **Fallback 2** when still no km value: `getResourceMileage()` reads `location/status` Bars since the last sync (`df_gd_odometer_last_sync`). Absolute odometer counters on the Bars (`MileageStop`, `MileageStart`, `Odometer`, …) win — they match the vehicle total shown in Geodynamics; otherwise the summed `MileageDriven` is added to the last logged odometer value
+5. A `fleet.vehicle.odometer` record is created for today (updated in place on re-sync the same day; values are converted to miles when the vehicle's odometer unit is miles; a value lower than the last log is never written; **zero-value records are ignored entirely** — a manual `0,00` entry neither blocks the sync nor counts as a starting value)
 
 Triggers: form/list button on the vehicle ("Sync Odometer from Geodynamics"), the "Sync Odometers Now" button in Settings, or the daily cron `Geodynamics: sync vehicle odometers` (gated by `geodynamics.auto_sync_odometer`).
+
+**Counter name matching.** `POST /api/v1/vehiclecounters` returns rows of
+`{Id, CounterName, CounterValue, IsDefault}`, where `CounterName` is free text configured
+per Geodynamics instance (`Kilometers`, `Draaiuren` on a Dutch instance). `_gd_match_counter()`
+therefore matches case-insensitively: an exact name match wins, a substring match
+(`Draaiuren motor`) is the fallback, and a default template counter (`IsDefault`) wins over an
+ad-hoc one. Instances with their own naming can override the candidates through the
+`geodynamics.counter_name_km` / `geodynamics.counter_name_hours` config parameters. When no km
+counter matches, the available counter names are written to the server log so the mismatch is
+visible.
+
+**Units.** `CounterValue` is a plain number with no unit in the payload: the km counter is taken
+as kilometres (converted to miles when the vehicle's odometer unit is miles) and the hours
+counter is stored in `df_gd_running_hours` as-is. The Geodynamics UI formats the hours counter
+as e.g. `1191u 34m`, so verify once per instance that the raw value matches (`1191.57`) rather
+than being expressed in minutes.
+
+**Note.** The counters are calculated up to the vehicle's last tracking report, so a vehicle
+that never reported (`HasTrackingData: false`) can still expose counters, while the
+`location/status` fallback yields nothing for it.
 
 ### Workday Splitting
 
