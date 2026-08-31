@@ -186,6 +186,65 @@ class GeodynamicsHandler:
                      type(data).__name__, len(data) if isinstance(data, list) else 'N/A')
         return {'Success': True, 'Data': data}
 
+    def getVehicleCounters(self, vehicle_ids, defaults_only=False):
+        """POST /api/v1/vehiclecounters — current counters per vehicle.
+
+        These are the counters shown under "Voertuig tellers" in Geodynamics
+        (e.g. 'Kilometers', 'Draaiuren'). Per the API documentation they are
+        calculated up to the vehicle's last tracking report.
+
+        The counter *names* are free text and locale-dependent, so the caller
+        decides which counter is the odometer and which the running hours.
+
+        Args:
+            vehicle_ids (list[str]): Vehicle GUIDs (df_geodynamics_id).
+            defaults_only (bool): Only return the default template counters.
+
+        Returns (dict):
+            On success: {'Success': True, 'Data': {vehicle_id: [counter, ...]}}
+                        where counter is {'Id', 'CounterName', 'CounterValue', 'IsDefault'}
+            On error:   {'Error': msg}
+        """
+        ids = [vid for vid in (vehicle_ids or []) if vid]
+        if not ids:
+            return {'Success': True, 'Data': {}}
+
+        url = 'https://api.intellitracer.be/api/v1/vehiclecounters'
+        params = {'defaultsOnly': 'true' if defaults_only else 'false'}
+        counters = {}
+        # The endpoint takes a list of vehicles; chunk so a large fleet does not
+        # end up in one oversized request.
+        for start in range(0, len(ids), 100):
+            chunk = ids[start:start + 100]
+            response = self._api_request('POST', url, params=params, json_body=chunk, timeout=60)
+            if response is None or response.status_code != 200:
+                if response is not None and response.status_code == 403:
+                    _logger.error("[Geodynamics] getVehicleCounters: HTTP 403 — the API user is missing "
+                                  "the 'Api: vehicle counters' privilege in Geodynamics")
+                return self._error_result('getVehicleCounters', url, response)
+            try:
+                data = response.json()
+            except ValueError:
+                return {'Error': 'getVehicleCounters: response was not valid JSON'}
+            if isinstance(data, dict):
+                data = data.get('Data') or []
+            if not isinstance(data, list):
+                data = [data]
+            for item in data:
+                if not isinstance(item, dict):
+                    continue
+                vehicle = item.get('Vehicle') or {}
+                vehicle_id = vehicle.get('Id') if isinstance(vehicle, dict) else None
+                if not vehicle_id:
+                    continue
+                rows = item.get('VehicleCounterData') or []
+                counters[vehicle_id] = [r for r in rows if isinstance(r, dict)]
+
+        _logger.info('[Geodynamics] getVehicleCounters: %d of %d vehicle(s) returned counters %s',
+                     len(counters), len(ids),
+                     {vid: [r.get('CounterName') for r in rows] for vid, rows in counters.items()})
+        return {'Success': True, 'Data': counters}
+
     def createVehicle(self, vehicle_data):
         """PUT /api/v1/vehicle — Create vehicle in Geodynamics."""
         url = 'https://api.intellitracer.be/api/v1/vehicle'
