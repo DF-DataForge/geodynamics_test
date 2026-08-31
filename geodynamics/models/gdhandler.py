@@ -219,8 +219,13 @@ class GeodynamicsHandler:
             response = self._api_request('POST', url, params=params, json_body=chunk, timeout=60)
             if response is None or response.status_code != 200:
                 if response is not None and response.status_code == 403:
-                    _logger.error("[Geodynamics] getVehicleCounters: HTTP 403 — the API user is missing "
-                                  "the 'Api: vehicle counters' privilege in Geodynamics")
+                    # Documented response for this endpoint when the account lacks the
+                    # privilege; it comes back with an empty body, so spell it out here.
+                    message = ("HTTP 403: this Geodynamics API account may not read vehicle "
+                               "counters. Ask GeoDynamics to grant it the "
+                               "'Api: vehicle counters' privilege.")
+                    _logger.error('[Geodynamics] getVehicleCounters: %s — URL: %s', message, url)
+                    return {'Error': message}
                 return self._error_result('getVehicleCounters', url, response)
             try:
                 data = response.json()
@@ -1244,62 +1249,6 @@ class GeodynamicsHandler:
             'total_minutes': total_minutes,
             'total_hours': round(total_minutes / 60.0, 2)
         }
-
-    def _payload_counter_keys(self, data, path='', found=None, depth=0):
-        """Recursively collect key paths in a payload that look like km / running-hours counters."""
-        if found is None:
-            found = []
-        if depth > 4 or len(found) >= 20:
-            return found
-        if isinstance(data, dict):
-            for k, v in data.items():
-                kl = str(k).lower()
-                if any(t in kl for t in ('mileage', 'odometer', 'kilometer', 'hour', 'draaiuren', 'counter')):
-                    if isinstance(v, (dict, list)):
-                        found.append(f'{path}{k}')
-                    else:
-                        found.append(f'{path}{k}={v!r}')
-                if isinstance(v, (dict, list)):
-                    self._payload_counter_keys(v, f'{path}{k}.', found, depth + 1)
-        elif isinstance(data, list):
-            for item in data[:3]:
-                self._payload_counter_keys(item, f'{path}[].', found, depth + 1)
-        return found
-
-    def probeVehicleCounterEndpoints(self, vehicle_gd_id):
-        """Diagnostic: try candidate endpoints that may expose a vehicle's total
-        km / running hours (the counters shown in the Geodynamics Service overview).
-
-        Every request is recorded in the API log (df.geodynamics.api.log) with the
-        full response, so unknown payloads can be inspected there afterwards.
-
-        Returns a list of {'url', 'status', 'counter_keys'} dicts.
-        """
-        base = 'https://api.intellitracer.be'
-        candidates = [
-            f'{base}/api/v1/vehicle/{vehicle_gd_id}',
-            f'{base}/api/v2/vehicle',
-            f'{base}/api/v2/vehicle/{vehicle_gd_id}',
-            f'{base}/api/v1/service',
-            f'{base}/api/v2/service',
-            f'{base}/api/v1/servicetask',
-            f'{base}/api/v2/servicetask',
-            f'{base}/api/v1/maintenance',
-            f'{base}/api/v1/counter?resourceId={vehicle_gd_id}',
-        ]
-        results = []
-        for url in candidates:
-            response = self._api_request('GET', url)
-            status = response.status_code if response is not None else 'no response'
-            hits = []
-            if response is not None and response.status_code == 200:
-                try:
-                    hits = self._payload_counter_keys(response.json())
-                except ValueError:
-                    pass
-            results.append({'url': url, 'status': status, 'counter_keys': hits})
-            _logger.info('[Geodynamics][Probe] %s -> %s, counter-like keys: %s', url, status, hits)
-        return results
 
     def getLocationsByResourcesAndDate(self, resource_ids, day=None, raise_on_error=False, from_day=None, to_day=None):
         """Fetch location positions for a list of resources for a given date or date range.

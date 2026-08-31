@@ -409,9 +409,11 @@ class FleetVehicleGd(models.Model):
         return result
 
     def action_gd_probe_counters(self):
-        """Diagnostic: probe candidate Geodynamics endpoints for total km /
-        running-hours counters. Results appear in the server log and every
-        request/response is stored in the API log (Settings > Geodynamics).
+        """Diagnostic: show the counters Geodynamics returns for this vehicle.
+
+        Reports the counter names and values behind the odometer sync, or the
+        reason the API did not return them. The full request/response is stored
+        in the API log (Settings > Geodynamics).
         """
         self.ensure_one()
         handler = self._gd_get_handler()
@@ -422,23 +424,32 @@ class FleetVehicleGd(models.Model):
         if not self.df_geodynamics_id:
             return self._gd_notify(_('This vehicle has no Geodynamics ID.'), kind='warning')
 
-        results = handler.probeVehicleCounterEndpoints(self.df_geodynamics_id)
-        found = [r for r in results if r['counter_keys']]
-        ok = [r for r in results if r['status'] == 200]
-        if found:
-            lines = '; '.join('%s: %s' % (r['url'].split('/api/')[-1], ', '.join(r['counter_keys'][:5]))
-                              for r in found)
-            message = _('Counter-like fields found! %s — check the API log for the full responses.') % lines
-            kind = 'success'
-        elif ok:
-            message = _('%d endpoint(s) responded (of %d probed) but none exposed km/hour counters. '
-                        'Check the API log for the full responses.') % (len(ok), len(results))
-            kind = 'warning'
+        result = handler.getVehicleCounters([self.df_geodynamics_id])
+        if result.get('Error'):
+            message = _('Vehicle counters could not be read: %s') % result['Error']
+            kind = 'danger'
         else:
-            message = _('None of the %d probed endpoints responded with HTTP 200. '
-                        'Check the API log for details.') % len(results)
-            kind = 'warning'
-        params = self._gd_notify(message, kind=kind, title=_('Geodynamics Counter Probe'))
+            counters = (result.get('Data') or {}).get(self.df_geodynamics_id) or []
+            if not counters:
+                message = _('Geodynamics returned no counters for this vehicle.')
+                kind = 'warning'
+            else:
+                km = self._gd_match_counter(
+                    counters, self._gd_counter_names('geodynamics.counter_name_km', GD_COUNTER_KM_NAMES))
+                hours = self._gd_match_counter(
+                    counters, self._gd_counter_names('geodynamics.counter_name_hours', GD_COUNTER_HOURS_NAMES))
+                listing = ', '.join('%s = %s' % (c.get('CounterName'), c.get('CounterValue'))
+                                    for c in counters)
+                message = _('Counters in Geodynamics: %s.') % listing
+                message += '\n'
+                message += (_('Odometer: %s km.') % km) if km is not None \
+                    else _('No counter matched as kilometres.')
+                message += ' '
+                message += (_('Running hours: %s.') % hours) if hours is not None \
+                    else _('No counter matched as running hours.')
+                kind = 'success' if km is not None else 'warning'
+
+        params = self._gd_notify(message, kind=kind, title=_('Geodynamics Vehicle Counters'))
         params['params']['sticky'] = True
         return params
 

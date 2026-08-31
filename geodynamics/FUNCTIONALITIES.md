@@ -1030,6 +1030,16 @@ than being expressed in minutes.
 that never reported (`HasTrackingData: false`) can still expose counters, while the
 `location/status` fallback yields nothing for it.
 
+**Privilege.** `POST /api/v1/vehiclecounters` requires the `Api: vehicle counters` privilege on
+the Geodynamics API account. Without it the endpoint answers **HTTP 403 with an empty body**;
+the sync then degrades to the fallbacks and the notification says the counters could not be
+read. Granting the privilege is a change in Geodynamics, not in Odoo.
+
+**Diagnostic.** The "Show Geodynamics counters" button on the vehicle (Geodynamics tab,
+developer mode) calls the endpoint for that one vehicle and reports the counter names and
+values, which of them matched as kilometres/hours, or the API error — useful when an instance
+uses counter names the defaults do not cover.
+
 ### Workday Splitting
 
 When creating plannings, work is split into standard workday periods:

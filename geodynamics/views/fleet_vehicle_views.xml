@@ -48,7 +48,7 @@
                     </group>
                     <group string="Raw Geodynamics Data" groups="base.group_no_one">
                         <button name="action_gd_probe_counters" type="object"
-                                string="Probe counter endpoints (diagnostic)"
+                                string="Show Geodynamics counters (diagnostic)"
                                 icon="fa-stethoscope" class="btn-link"
                                 invisible="not df_geodynamics_id"/>
                         <field name="df_geodynamics_raw" widget="json" readonly="1" nolabel="1"/>
