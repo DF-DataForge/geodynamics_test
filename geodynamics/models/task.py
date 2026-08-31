@@ -453,6 +453,12 @@ class Project(models.Model):
         setting (allowed_types): timesheet events are filtered on their Type field
         (df_codes: 1=Activity, 5=Work, ...); empty means import all types.
 
+        Every imported event is logged as a timesheet line ('urenstaat') on the task
+        and stamped with its df.geodynamics.event.type. Whether those hours are also
+        charged to the project is a per-event-type choice: only event types with
+        'Log hours as cost' (df_log_timesheets) ticked keep their cost, the others get
+        a zero amount (see account.analytic.line._df_gd_skip_cost).
+
         expected_key / expected_id override what the job filter matches against
         (defaults to record.df_gd_name / record.id). This lets the project-level
         fetch reuse this method with the project key ("<name>-P<id>", id "P<id>").
@@ -460,6 +466,10 @@ class Project(models.Model):
         created = 0
         seen_keys = set()
         skipped_types = set()  # event Types that matched the key but are not in the Event Types filter
+        # df_code -> df.geodynamics.event.type, to stamp every line with the event type
+        # it came from. That link carries the "Log hours as cost" flag: unticked types
+        # still become timesheet lines, but account.analytic.line zeroes their cost.
+        event_types = self.env['df.geodynamics.event.type']._code_map()
         expected = (expected_key if expected_key is not None else (record.df_gd_name or '')).strip().lower()
         task_id_str = str(expected_id if expected_id is not None else record.id)
         verbose = self._gd_verbose_enabled()
@@ -507,11 +517,13 @@ class Project(models.Model):
                         if duration['diff'] <= 0:
                             _logger.info('[Geodynamics][Postcalc]     SKIP zero-duration TimesheetEvent JobNumber=%r', jobnr)
                             continue
+                        gd_event_type = event_types.get(str(ev_type))
                         vals = {
                             'account_id': record.project_id.account_id.id, 'date': sDate,
                             'task_id': record.id, 'employee_id': emp.id,
                             'name': 'Registratie Geodynamics',
                             'df_gd_type': str(event.get('Type', '')), 'df_gd_eventtype': str(event.get('EventType', '')),
+                            'df_gd_event_type_id': gd_event_type.id if gd_event_type else False,
                             'df_start_time': duration['start'], 'df_end_time': duration['stop'], 'unit_amount': duration['diff'],
                         }
                         start_loc = event.get('StartLocation')
@@ -535,7 +547,9 @@ class Project(models.Model):
                             vals['df_gd_stop_resource_id'] = fleet_stop
                         self.env['account.analytic.line'].create(vals)
                         created += 1
-                        _logger.info('[Geodynamics][Postcalc]     CREATED %.2fh JobNumber=%r', duration['diff'], jobnr)
+                        _logger.info('[Geodynamics][Postcalc]     CREATED %.2fh JobNumber=%r Type=%s cost=%s',
+                                     duration['diff'], jobnr, ev_type,
+                                     'yes' if (not gd_event_type or gd_event_type.df_log_timesheets) else 'no (Log hours as cost off)')
                     except Exception as e:
                         _logger.exception('[Geodynamics][Postcalc]     ERROR creating line for event %s: %s', event, e)
             elif postcalcsource == 'postcalculation':
@@ -570,10 +584,14 @@ class Project(models.Model):
                         if duration['diff'] <= 0:
                             _logger.info('[Geodynamics][Postcalc]     SKIP zero-duration PostCalculationEvent key=%r', cc_full or activity_code)
                             continue
+                        # Same key as the 'Event Types to Import' filter above, so both
+                        # settings are driven by the very same event type record.
+                        gd_event_type = event_types.get(str(ev_type)) if ev_type is not None else None
                         vals = {
                             'account_id': record.project_id.account_id.id, 'date': sDate,
                             'task_id': record.id, 'employee_id': emp.id,
                             'name': 'Registratie Geodynamics',
+                            'df_gd_event_type_id': gd_event_type.id if gd_event_type else False,
                             'df_start_time': duration['start'], 'df_end_time': duration['stop'], 'unit_amount': duration['diff'],
                         }
                         if ev_type is not None:
@@ -585,7 +603,9 @@ class Project(models.Model):
                                 vals['df_gd_mileage'] = total_km
                         self.env['account.analytic.line'].create(vals)
                         created += 1
-                        _logger.info('[Geodynamics][Postcalc]     CREATED %.2fh key=%r', duration['diff'], cc_full or activity_code)
+                        _logger.info('[Geodynamics][Postcalc]     CREATED %.2fh key=%r EventType=%s cost=%s',
+                                     duration['diff'], cc_full or activity_code, ev_type,
+                                     'yes' if (not gd_event_type or gd_event_type.df_log_timesheets) else 'no (Log hours as cost off)')
                     except Exception as e:
                         _logger.exception('[Geodynamics][Postcalc]     ERROR creating line for event %s: %s', event, e)
             else:

@@ -4,4 +4,5 @@
 
 from . import test_woon_werk_vehicle_filtering
 from . import test_gd_odometer_sync
+from . import test_event_type_log_cost
 

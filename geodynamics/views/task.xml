@@ -109,6 +109,7 @@
                     <field name="df_end_time" optional="show"/>
                     <field name="df_gd_type" optional="show"/>
                     <field name="df_gd_eventtype" optional="show"/>
+                    <field name="df_gd_event_type_id" optional="hide"/>
                     <field name="df_gd_start_location" optional="show"/>
                     <field name="df_gd_stop_location" optional="show"/>
                     <field name="df_gd_mileage" optional="show"/>

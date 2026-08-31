@@ -380,7 +380,9 @@ For each planning linked to this task:
 2. Based on `postcalcsource` setting:
    - `timesheet`: processes `TimeSheetEvents` — matches by `JobNumber == task.df_gd_name` and `Type == 5` (Work)
    - `postcalculation`: processes `PostCalculationEvents` — matches by `CostCenter == task.df_gd_name`
-3. Creates timesheet lines with start/end times and event type codes
+3. Creates timesheet lines with start/end times and event type codes, each linked to its
+   `df.geodynamics.event.type`. Event types whose "Log hours as cost" (`df_log_timesheets`)
+   box is unticked are still registered as timesheets, but with a zero cost.
 
 #### Stage Change Handling (`_check_and_update_geo_by_stage()`)
 
@@ -572,6 +574,26 @@ Opens a list of all clockings for the affected employees on the error date, auto
 | `df_end_time` | Datetime | Precise end time for the timesheet interval |
 | `df_gd_type` | Selection (0-9) | Geodynamics event type: Absence, Activity, Allowance, Break, Movement, Work, Error, Unpaid, TravelTime, External |
 | `df_gd_eventtype` | Selection (0-13) | Detailed event type: Absence paid, Absence unpaid, Activity, Break, Movement driver/passenger/single, Work, Load/Unload, Travel time, External, Unpaid, Allowance, Error |
+| `df_gd_event_type_id` | Many2one → `df.geodynamics.event.type` | Event type the line was imported from. Its `df_log_timesheets` ("Log hours as cost") flag decides whether the hours are charged to the project. |
+
+### Cost of imported hours
+
+Every event returned by the post-calculation import becomes a timesheet line
+("urenstaat") on the task. Whether those hours also become a **cost** on the project
+is a per-event-type choice:
+
+- `df_log_timesheets` ticked (default): Odoo keeps the cost it derives from the
+  employee hourly cost — normal behaviour.
+- `df_log_timesheets` unticked: the timesheet line is still created with its hours
+  (`unit_amount`), but its `amount` is forced to `0.0`, so the event type does not
+  show up in the project costs.
+
+The cost is cleared in `account.analytic.line` (`models/account_analytic.py`):
+`create()` clears the amount `hr_timesheet` fills in after creation, and
+`_timesheet_postprocess_values()` keeps it at zero when the hours, employee or
+analytic account of such a line are later edited. Changing the flag affects newly
+imported lines; existing lines pick it up on the next post-calculation fetch (which
+deletes and recreates the lines for the fetched day).
 
 ### Fields from `account_analytic_line.py`
 

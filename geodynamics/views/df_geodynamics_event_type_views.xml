@@ -6,9 +6,10 @@
         <field name="name">df.geodynamics.event.type.list</field>
         <field name="model">df.geodynamics.event.type</field>
         <field name="arch" type="xml">
-            <list string="Geodynamics Event Types" create="0" delete="0" edit="0">
-                <field name="df_code" string="ID / Code"/>
-                <field name="name"/>
+            <list string="Geodynamics Event Types" create="0" delete="0" editable="bottom">
+                <field name="df_code" string="ID / Code" readonly="1"/>
+                <field name="name" readonly="1"/>
+                <field name="df_log_timesheets" widget="boolean_toggle"/>
             </list>
         </field>
     </record>
@@ -20,8 +21,9 @@
             <form string="Geodynamics Event Type">
                 <sheet>
                     <group>
-                        <field name="df_code" string="ID / Code"/>
-                        <field name="name"/>
+                        <field name="df_code" string="ID / Code" readonly="1"/>
+                        <field name="name" readonly="1"/>
+                        <field name="df_log_timesheets"/>
                     </group>
                 </sheet>
             </form>
@@ -36,6 +38,9 @@
             <p class="o_view_nocontent_smiling_face">Geodynamics event types</p>
             <p>These are the Geodynamics event types and their IDs. Use the ID in the
                "Event Types to Import" setting to control which events are imported during post-calculation.</p>
+            <p>Imported events are always logged as timesheets ("urenstaten") on the task. Tick
+               "Log hours as cost" on an event type to also charge its hours to the project;
+               untick it to keep the registration without any cost.</p>
         </field>
     </record>
 
