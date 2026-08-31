@@ -4,4 +4,4 @@
 
 from . import test_woon_werk_vehicle_filtering
 from . import test_gd_odometer_sync
-
+from . import test_planning_slot_sync

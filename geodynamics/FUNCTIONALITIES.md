@@ -420,6 +420,7 @@ Creates a POI in Geodynamics using:
 | `user_id` | Many2one → `res.users` | | Linked Odoo user |
 | `activitynumber` | Char | | Activity number (usually the task/project name) |
 | `description` | Char | | Description text |
+| `df_planning_slot_id` | Many2one → `planning.slot` | | Shift in the Odoo Planning app kept in sync with this planning (`ondelete='set null'`). Deleting either side deletes the other. |
 
 ### Computed Fields
 
@@ -433,6 +434,39 @@ Creates a POI in Geodynamics using:
 **Verwijder planning** (`removePlanning`):
 1. Calls `DELETE /api/v2/planning/{id_geodynamics}` on the API
 2. Deletes the local Odoo record
+3. Deletes the matching shift in the Odoo Planning app (`df_planning_slot_id`), see below
+
+### Planning app synchronisation
+
+Every planning sent to Geodynamics also gets a shift in the Odoo Planning app
+(`planning.slot`, module dependency `planning`), and both sides are kept in sync.
+
+| Event | Effect |
+|-------|--------|
+| A `df.geodynamics.planning` is created (from any sender: `createPlanningByTask`, `createPlanningByTaskWn`, `models/project.py`) | A `planning.slot` is created for the same employee, period, project and task, and linked through `df_planning_slot_id` |
+| A `df.geodynamics.planning` is deleted | Its shift is deleted from the Planning app (on top of the `DELETE` call to the Geodynamics API) |
+| A `planning.slot` is deleted (e.g. from the Planning gantt) | Its Geodynamics plannings are deleted, which also removes them from Geodynamics itself |
+| A planning's `start_datetime` / `end_datetime` / `employee_id` / `user_id` / `description` is written | The shift is moved/updated along with it |
+
+Creation is **one-directional**: a shift created by hand in the Planning app does
+*not* create a Geodynamics planning.
+
+The user is **always warned** about the counterpart being created or deleted, through
+a non-blocking `bus.bus` `simple_notification` (`_gd_notify_counterpart()`). This is
+deliberately a notification after the fact and *not* a blocking confirm dialog — a
+dialog the user could cancel would leave the two sides out of sync.
+
+**Implementation notes** (`models/gdplanning.py`, `models/planning_slot.py`):
+
+- `gd_skip_planning_sync` in the context marks the half of a delete that is already
+  being handled, so the two `unlink()` overrides do not call each other back and forth.
+- `_gd_slot_vals()` filters its values against `planning.slot._fields`, because the
+  available fields differ between Odoo versions and installed Planning bridges; an
+  unknown key would make `create()` fail.
+- Shift creation is non-fatal and wrapped in a savepoint: by the time the shift is
+  built the planning already exists in Geodynamics, so a Planning app rejection must
+  never roll it back or block the send (`createPlanningByTaskWn` turns any exception
+  into a `ValidationError`). The failure is logged and the user gets a sticky warning.
 
 ---
 
