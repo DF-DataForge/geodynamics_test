@@ -62,7 +62,7 @@
                                             <field name="end_datetime"/>
                                             <button name="removePlanning" type="object" icon="fa-trash"
                                                     title="Delete planning"
-                                                    confirm="Delete this planning? It will also be removed from Geodynamics. This cannot be undone."/>
+                                                    confirm="Delete this planning? It will also be removed from Geodynamics and its shift in the Planning app will be deleted. This cannot be undone."/>
                                         </list>
                                     </field>
                                 </p>
