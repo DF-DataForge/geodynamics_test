@@ -21,6 +21,7 @@
                             <field name="task_id"/>
                             <field name="project_id"/>
                             <field name="description"/>
+                            <field name="df_planning_slot_id"/>
                         </group>
                     </group>
                 </sheet>
@@ -46,6 +47,7 @@
                 <field name="activitynumber"/>
                 <field name="id_geodynamics" optional="hide"/>
                 <field name="user_id" optional="hide"/>
+                <field name="df_planning_slot_id" optional="hide"/>
             </list>
         </field>
     </record>

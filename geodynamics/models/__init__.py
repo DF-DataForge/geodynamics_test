@@ -8,6 +8,7 @@ from . import project
 from . import users
 from . import task
 from . import gdplanning
+from . import planning_slot
 from . import account_analytic
 from . import account_analytic_line
 from . import partner
