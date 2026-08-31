@@ -306,3 +306,46 @@ class TestGdOdometerSync(TransactionCase):
         logged, skipped, fallback = self.vehicle._gd_sync_odometer(handler)
         self.assertEqual(logged, 0)
         self.assertFalse(self.Odometer.search([('vehicle_id', '=', self.vehicle.id)]))
+
+    # ------------------------------------------------------------------
+    # Diagnostics: why did the counters not produce a value?
+    # ------------------------------------------------------------------
+
+    def test_diagnostics_report_counter_error(self):
+        handler = FakeHandler(vehicles=[{'Id': 'gd-vehicle-guid-1'}], counters={'Error': 'HTTP 403'})
+        diagnostics = {}
+        self.vehicle._gd_sync_odometer(handler, diagnostics)
+        self.assertEqual(diagnostics.get('counter_error'), 'HTTP 403')
+        self.assertNotIn('no_counters', diagnostics,
+                         'A failed call must not also be reported as "no counters"')
+
+    def test_diagnostics_report_unmatched_counter_names(self):
+        handler = FakeHandler(
+            vehicles=[{'Id': 'gd-vehicle-guid-1'}],
+            counters={'gd-vehicle-guid-1': [
+                {'CounterName': 'Tankbeurten', 'CounterValue': 3, 'IsDefault': True},
+            ]})
+        diagnostics = {}
+        self.vehicle._gd_sync_odometer(handler, diagnostics)
+        self.assertEqual(diagnostics.get('unmatched'), [(self.vehicle.name, ['Tankbeurten'])])
+
+    def test_diagnostics_report_empty_counters(self):
+        handler = FakeHandler(vehicles=[{'Id': 'gd-vehicle-guid-1'}], counters={})
+        diagnostics = {}
+        self.vehicle._gd_sync_odometer(handler, diagnostics)
+        self.assertEqual(diagnostics.get('no_counters'), [self.vehicle.name])
+
+    def test_diagnostics_empty_on_success(self):
+        handler = FakeHandler(
+            vehicles=[{'Id': 'gd-vehicle-guid-1'}],
+            counters={'gd-vehicle-guid-1': [
+                {'CounterName': 'Kilometers', 'CounterValue': 57107.3, 'IsDefault': True},
+            ]})
+        diagnostics = {}
+        self.vehicle._gd_sync_odometer(handler, diagnostics)
+        self.assertEqual(diagnostics, {})
+
+    def test_sync_without_diagnostics_argument_still_works(self):
+        """The cron calls _gd_sync_odometer() without a diagnostics dict."""
+        handler = FakeHandler(vehicles=[{'Id': 'gd-vehicle-guid-1'}], counters={'Error': 'HTTP 403'})
+        self.assertEqual(self.vehicle._gd_sync_odometer(handler), (0, 1, 0))
